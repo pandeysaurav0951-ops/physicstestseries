@@ -1,1 +1,176 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Chapter 1 Test</title>
 
+  <style>
+    body {
+      font-family: Arial;
+      background: #0f172a;
+      color: white;
+      text-align: center;
+    }
+
+    .container {
+      max-width: 500px;
+      margin: auto;
+      background: #1e293b;
+      padding: 20px;
+      border-radius: 10px;
+    }
+
+    h2 { color: #38bdf8; }
+
+    p { text-align: left; margin-top: 15px; }
+
+    button {
+      margin-top: 20px;
+      padding: 10px 20px;
+      background: #38bdf8;
+      border: none;
+      border-radius: 5px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    #result {
+      margin-top: 20px;
+      color: #22c55e;
+      font-size: 18px;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>Chapter 1 Physics Test</h2>
+<h3>Time Left: <span id="time">300</span> sec</h3>
+
+<form id="quizForm">
+
+<!-- 20 Questions -->
+<p>1. Physical quantity kya hota hai?</p>
+<input type="radio" name="q1" value="correct"> Measurable quantity<br>
+<input type="radio" name="q1" value="wrong"> Emotion<br>
+
+<p>2. SI unit of length?</p>
+<input type="radio" name="q2" value="correct"> Meter<br>
+<input type="radio" name="q2" value="wrong"> Second<br>
+
+<p>3. SI unit of mass?</p>
+<input type="radio" name="q3" value="correct"> Kilogram<br>
+<input type="radio" name="q3" value="wrong"> Newton<br>
+
+<p>4. SI unit of time?</p>
+<input type="radio" name="q4" value="correct"> Second<br>
+<input type="radio" name="q4" value="wrong"> Meter<br>
+
+<p>5. Derived quantity example?</p>
+<input type="radio" name="q5" value="correct"> Velocity<br>
+<input type="radio" name="q5" value="wrong"> Length<br>
+
+<p>6. Velocity ka unit?</p>
+<input type="radio" name="q6" value="correct"> m/s<br>
+<input type="radio" name="q6" value="wrong"> kg<br>
+
+<p>7. Force ka unit?</p>
+<input type="radio" name="q7" value="correct"> Newton<br>
+<input type="radio" name="q7" value="wrong"> Joule<br>
+
+<p>8. Work ka unit?</p>
+<input type="radio" name="q8" value="correct"> Joule<br>
+<input type="radio" name="q8" value="wrong"> Watt<br>
+
+<p>9. Power ka unit?</p>
+<input type="radio" name="q9" value="correct"> Watt<br>
+<input type="radio" name="q9" value="wrong"> Newton<br>
+
+<p>10. Density formula?</p>
+<input type="radio" name="q10" value="correct"> mass/volume<br>
+<input type="radio" name="q10" value="wrong"> volume/mass<br>
+
+<p>11. SI system kya hai?</p>
+<input type="radio" name="q11" value="correct"> International system<br>
+<input type="radio" name="q11" value="wrong"> Local system<br>
+
+<p>12. Accuracy ka matlab?</p>
+<input type="radio" name="q12" value="correct"> Correctness<br>
+<input type="radio" name="q12" value="wrong"> Speed<br>
+
+<p>13. Precision ka matlab?</p>
+<input type="radio" name="q13" value="correct"> Repeatability<br>
+<input type="radio" name="q13" value="wrong"> Size<br>
+
+<p>14. Error kya hota hai?</p>
+<input type="radio" name="q14" value="correct"> Difference<br>
+<input type="radio" name="q14" value="wrong"> Same value<br>
+
+<p>15. Scalar quantity?</p>
+<input type="radio" name="q15" value="correct"> Mass<br>
+<input type="radio" name="q15" value="wrong"> Velocity<br>
+
+<p>16. Vector quantity?</p>
+<input type="radio" name="q16" value="correct"> Force<br>
+<input type="radio" name="q16" value="wrong"> Time<br>
+
+<p>17. Dimension of velocity?</p>
+<input type="radio" name="q17" value="correct"> LT^-1<br>
+<input type="radio" name="q17" value="wrong"> L^2T<br>
+
+<p>18. Unit of acceleration?</p>
+<input type="radio" name="q18" value="correct"> m/s²<br>
+<input type="radio" name="q18" value="wrong"> m<br>
+
+<p>19. 1 km = ?</p>
+<input type="radio" name="q19" value="correct"> 1000 m<br>
+<input type="radio" name="q19" value="wrong"> 100 m<br>
+
+<p>20. 1 hour = ?</p>
+<input type="radio" name="q20" value="correct"> 3600 sec<br>
+<input type="radio" name="q20" value="wrong"> 60 sec<br>
+
+<button type="button" onclick="checkResult()">Submit</button>
+
+</form>
+
+<h3 id="result"></h3>
+
+</div>
+
+<script>
+
+let timeLeft = 300;
+
+let timer = setInterval(function() {
+  timeLeft--;
+  document.getElementById("time").innerText = timeLeft;
+
+  if (timeLeft <= 0) {
+    clearInterval(timer);
+    alert("Time's up!");
+    checkResult();
+  }
+}, 1000);
+
+
+function checkResult() {
+
+  clearInterval(timer);
+
+  let score = 0;
+
+  for (let i = 1; i <= 20; i++) {
+    let q = document.querySelector('input[name="q' + i + '"]:checked');
+    if (q && q.value === "correct") score++;
+  }
+
+  document.getElementById("result").innerText =
+    "Your Score: " + score + "/20";
+}
+
+</script>
+
+</body>
+  </html>
