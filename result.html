@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Result</title>
+</head>
+<body>
+
+<h1>Test Result</h1>
+
+<p id="score"></p>
+
+<a href="index.html">
+    <button>Back to Home</button>
+</a>
+
+<script>
+    var score = localStorage.getItem("score");
+    document.getElementById("score").innerHTML = "Your Score: " + score;
+</script>
+
+</body>
+</html>
