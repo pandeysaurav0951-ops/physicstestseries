@@ -1,7 +1,8 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html>
 <head>
   <title>Physics Test</title>
+
   <style>
     body {
       font-family: Arial;
@@ -16,7 +17,6 @@
       background: #1e293b;
       padding: 20px;
       border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.5);
     }
 
     h2 {
@@ -26,10 +26,6 @@
     p {
       text-align: left;
       margin-top: 15px;
-    }
-
-    input {
-      margin-right: 8px;
     }
 
     button {
@@ -43,22 +39,22 @@
       cursor: pointer;
     }
 
-    button:hover {
-      background: #0ea5e9;
-    }
-
     #result {
       margin-top: 20px;
       font-size: 18px;
       color: #22c55e;
     }
   </style>
+
 </head>
+
 <body>
 
 <div class="container">
 
 <h2>Physics Test</h2>
+
+<h3>Time Left: <span id="time">60</span> sec</h3>
 
 <form id="quizForm">
 
@@ -91,7 +87,27 @@
 </div>
 
 <script>
+
+// TIMER CODE
+let timeLeft = 60;
+
+let timer = setInterval(function() {
+  timeLeft--;
+  document.getElementById("time").innerText = timeLeft;
+
+  if (timeLeft <= 0) {
+    clearInterval(timer);
+    alert("Time's up!");
+    checkResult();
+  }
+}, 1000);
+
+
+// RESULT FUNCTION
 function checkResult() {
+
+  clearInterval(timer); // timer stop
+
   let score = 0;
 
   let q1 = document.querySelector('input[name="q1"]:checked');
@@ -106,8 +122,8 @@ function checkResult() {
 
   document.getElementById("result").innerText = "Your Score: " + score + "/4";
 }
+
 </script>
 
 </body>
 </html>
-<h3>Time Left: <span id="time">60</span> sec</h3>
