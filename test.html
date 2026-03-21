@@ -2,8 +2,61 @@
 <html>
 <head>
   <title>Physics Test</title>
+  <style>
+    body {
+      font-family: Arial;
+      background: #0f172a;
+      color: white;
+      text-align: center;
+    }
+
+    .container {
+      max-width: 400px;
+      margin: auto;
+      background: #1e293b;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.5);
+    }
+
+    h2 {
+      color: #38bdf8;
+    }
+
+    p {
+      text-align: left;
+      margin-top: 15px;
+    }
+
+    input {
+      margin-right: 8px;
+    }
+
+    button {
+      margin-top: 20px;
+      padding: 10px 20px;
+      background: #38bdf8;
+      border: none;
+      border-radius: 5px;
+      color: black;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #0ea5e9;
+    }
+
+    #result {
+      margin-top: 20px;
+      font-size: 18px;
+      color: #22c55e;
+    }
+  </style>
 </head>
 <body>
+
+<div class="container">
 
 <h2>Physics Test</h2>
 
@@ -29,12 +82,13 @@
   <input type="radio" name="q4" value="Joule"> Joule<br>
   <input type="radio" name="q4" value="Newton"> Newton<br>
 
-  <br><br>
   <button type="button" onclick="checkResult()">Submit</button>
 
 </form>
 
 <h3 id="result"></h3>
+
+</div>
 
 <script>
 function checkResult() {
