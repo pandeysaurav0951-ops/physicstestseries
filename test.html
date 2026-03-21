@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Physics Test</title>
+</head>
+<body>
+  <h2>Question 1:</h2>
+  <p>What is unit of force?</p>
+
+  <button onclick="checkAnswer('A')">Newton</button>
+  <button onclick="checkAnswer('B')">Joule</button>
+
+  <p id="result"></p>
+
+  <script>
+    function checkAnswer(ans) {
+      if(ans === 'A') {
+        document.getElementById("result").innerText = "Correct ✅";
+      } else {
+        document.getElementById("result").innerText = "Wrong ❌";
+      }
+    }
+  </script>
+</body>
+</html>
