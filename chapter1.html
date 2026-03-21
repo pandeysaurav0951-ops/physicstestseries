@@ -36,6 +36,12 @@
       border-radius: 5px;
       cursor: pointer;
     }
+
+    #result {
+      margin-top: 20px;
+      color: #22c55e;
+      font-size: 18px;
+    }
   </style>
 </head>
 
@@ -43,39 +49,96 @@
 
 <div class="container">
 
-<h2>Chapter 1 Test</h2>
+<h2>Chapter 1 Physics Test</h2>
+<h3>Time Left: <span id="time">300</span> sec</h3>
 
 <form id="quizForm">
 
-<!-- Question 1 -->
+<!-- 20 Questions -->
 <div class="question active">
-  <p>1. SI unit of Force?</p>
-  <input type="radio" name="q1" value="correct"> Newton<br>
-  <input type="radio" name="q1" value="wrong"> Joule<br>
-  <input type="radio" name="q1" value="wrong"> Watt<br>
-  <input type="radio" name="q1" value="wrong"> Pascal<br>
+<p>1. SI unit of Force?</p>
+<input type="radio" name="q1" value="correct"> Newton<br>
+<input type="radio" name="q1" value="wrong"> Joule<br>
+<input type="radio" name="q1" value="wrong"> Watt<br>
+<input type="radio" name="q1" value="wrong"> Pascal<br>
 </div>
 
-<!-- Question 2 -->
 <div class="question">
-  <p>2. Speed of light?</p>
-  <input type="radio" name="q2" value="correct"> 3×10^8 m/s<br>
-  <input type="radio" name="q2" value="wrong"> 1×10^6 m/s<br>
-  <input type="radio" name="q2" value="wrong"> 5×10^7 m/s<br>
-  <input type="radio" name="q2" value="wrong"> 10^5 m/s<br>
+<p>2. Speed of light?</p>
+<input type="radio" name="q2" value="correct"> 3×10^8 m/s<br>
+<input type="radio" name="q2" value="wrong"> 1×10^6 m/s<br>
+<input type="radio" name="q2" value="wrong"> 5×10^7 m/s<br>
+<input type="radio" name="q2" value="wrong"> 10^5 m/s<br>
 </div>
 
-<!-- Question 3 -->
 <div class="question">
-  <p>3. Unit of Energy?</p>
-  <input type="radio" name="q3" value="correct"> Joule<br>
-  <input type="radio" name="q3" value="wrong"> Watt<br>
-  <input type="radio" name="q3" value="wrong"> Newton<br>
-  <input type="radio" name="q3" value="wrong"> Pascal<br>
+<p>3. Unit of Energy?</p>
+<input type="radio" name="q3" value="correct"> Joule<br>
+<input type="radio" name="q3" value="wrong"> Watt<br>
+<input type="radio" name="q3" value="wrong"> Newton<br>
+<input type="radio" name="q3" value="wrong"> Pascal<br>
 </div>
 
-<!-- aur isi tarah 20 questions bana sakte ho -->
+<!-- SAME PATTERN: Q4–Q20 -->
 
+<!-- Copy this block and change question number -->
+<div class="question">
+<p>4. Unit of Power?</p>
+<input type="radio" name="q4" value="correct"> Watt<br>
+<input type="radio" name="q4" value="wrong"> Joule<br>
+<input type="radio" name="q4" value="wrong"> Newton<br>
+<input type="radio" name="q4" value="wrong"> Pascal<br>
+</div>
+
+<div class="question">
+<p>5. SI unit of length?</p>
+<input type="radio" name="q5" value="correct"> Meter<br>
+<input type="radio" name="q5" value="wrong"> Second<br>
+<input type="radio" name="q5" value="wrong"> Kg<br>
+<input type="radio" name="q5" value="wrong"> Ampere<br>
+</div>
+
+<div class="question">
+<p>6. SI unit of mass?</p>
+<input type="radio" name="q6" value="correct"> Kg<br>
+<input type="radio" name="q6" value="wrong"> Meter<br>
+<input type="radio" name="q6" value="wrong"> Second<br>
+<input type="radio" name="q6" value="wrong"> Joule<br>
+</div>
+
+<div class="question">
+<p>7. Velocity unit?</p>
+<input type="radio" name="q7" value="correct"> m/s<br>
+<input type="radio" name="q7" value="wrong"> m<br>
+<input type="radio" name="q7" value="wrong"> s<br>
+<input type="radio" name="q7" value="wrong"> kg<br>
+</div>
+
+<div class="question">
+<p>8. Work unit?</p>
+<input type="radio" name="q8" value="correct"> Joule<br>
+<input type="radio" name="q8" value="wrong"> Watt<br>
+<input type="radio" name="q8" value="wrong"> Newton<br>
+<input type="radio" name="q8" value="wrong"> Pascal<br>
+</div>
+
+<div class="question">
+<p>9. Acceleration unit?</p>
+<input type="radio" name="q9" value="correct"> m/s²<br>
+<input type="radio" name="q9" value="wrong"> m/s<br>
+<input type="radio" name="q9" value="wrong"> kg<br>
+<input type="radio" name="q9" value="wrong"> N<br>
+</div>
+
+<div class="question">
+<p>10. Density formula?</p>
+<input type="radio" name="q10" value="correct"> mass/volume<br>
+<input type="radio" name="q10" value="wrong"> volume/mass<br>
+<input type="radio" name="q10" value="wrong"> mass×volume<br>
+<input type="radio" name="q10" value="wrong"> none<br>
+</div>
+
+<!-- Repeat same style till q20 -->
 </form>
 
 <button onclick="prevQuestion()">Previous</button>
@@ -88,6 +151,21 @@
 
 <script>
 
+// TIMER
+let timeLeft = 300;
+let timer = setInterval(function() {
+  timeLeft--;
+  document.getElementById("time").innerText = timeLeft;
+
+  if (timeLeft <= 0) {
+    clearInterval(timer);
+    alert("Time's up!");
+    submitQuiz();
+  }
+}, 1000);
+
+
+// SLIDE SYSTEM
 let current = 0;
 let questions = document.querySelectorAll(".question");
 
@@ -110,7 +188,11 @@ function prevQuestion() {
   }
 }
 
+
+// RESULT
 function submitQuiz() {
+  clearInterval(timer);
+
   let score = 0;
 
   for (let i = 1; i <= questions.length; i++) {
