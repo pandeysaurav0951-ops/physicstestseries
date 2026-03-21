@@ -4,22 +4,48 @@
   <title>Physics Test</title>
 </head>
 <body>
-  <h2>Question 1:</h2>
-  <p>What is unit of force?</p>
 
-  <button onclick="checkAnswer('A')">Newton</button>
-  <button onclick="checkAnswer('B')">Joule</button>
+<h2>Physics Test</h2>
 
-  <p id="result"></p>
+<form id="quizForm">
 
-  <script>
-    function checkAnswer(ans) {
-      if(ans === 'A') {
-        document.getElementById("result").innerText = "Correct ✅";
-      } else {
-        document.getElementById("result").innerText = "Wrong ❌";
-      }
-    }
-  </script>
+  <p>1. SI unit of Force?</p>
+  <input type="radio" name="q1" value="Newton"> Newton<br>
+  <input type="radio" name="q1" value="Joule"> Joule<br>
+  <input type="radio" name="q1" value="Watt"> Watt<br>
+
+  <p>2. Speed of light?</p>
+  <input type="radio" name="q2" value="3e8"> 3×10^8 m/s<br>
+  <input type="radio" name="q2" value="1e6"> 1×10^6 m/s<br>
+  <input type="radio" name="q2" value="5e7"> 5×10^7 m/s<br>
+
+  <p>3. Unit of Energy?</p>
+  <input type="radio" name="q3" value="Joule"> Joule<br>
+  <input type="radio" name="q3" value="Newton"> Newton<br>
+  <input type="radio" name="q3" value="Watt"> Watt<br>
+
+  <br><br>
+  <button type="button" onclick="checkResult()">Submit</button>
+
+</form>
+
+<h3 id="result"></h3>
+
+<script>
+function checkResult() {
+  let score = 0;
+
+  let q1 = document.querySelector('input[name="q1"]:checked');
+  let q2 = document.querySelector('input[name="q2"]:checked');
+  let q3 = document.querySelector('input[name="q3"]:checked');
+
+  if (q1 && q1.value === "Newton") score++;
+  if (q2 && q2.value === "3e8") score++;
+  if (q3 && q3.value === "Joule") score++;
+
+  document.getElementById("result").innerText = "Your Score: " + score + "/3";
+}
+</script>
+
 </body>
 </html>
