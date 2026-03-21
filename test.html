@@ -1,7 +1,4 @@
-<p>4. Unit of Power?</p>
-<input type="radio" name="q4" value="Watt"> Watt<br>
-<input type="radio" name="q4" value="Joule"> Joule<br>
-<input type="radio" name="q4" value="Newton"> Newton<br><!DOCTYPE html>
+ <!DOCTYPE html>
 <html>
 <head>
   <title>Physics Test</title>
@@ -27,6 +24,11 @@
   <input type="radio" name="q3" value="Newton"> Newton<br>
   <input type="radio" name="q3" value="Watt"> Watt<br>
 
+  <p>4. Unit of Power?</p>
+  <input type="radio" name="q4" value="Watt"> Watt<br>
+  <input type="radio" name="q4" value="Joule"> Joule<br>
+  <input type="radio" name="q4" value="Newton"> Newton<br>
+
   <br><br>
   <button type="button" onclick="checkResult()">Submit</button>
 
@@ -41,12 +43,14 @@ function checkResult() {
   let q1 = document.querySelector('input[name="q1"]:checked');
   let q2 = document.querySelector('input[name="q2"]:checked');
   let q3 = document.querySelector('input[name="q3"]:checked');
+  let q4 = document.querySelector('input[name="q4"]:checked');
 
   if (q1 && q1.value === "Newton") score++;
   if (q2 && q2.value === "3e8") score++;
   if (q3 && q3.value === "Joule") score++;
+  if (q4 && q4.value === "Watt") score++;
 
-  document.getElementById("result").innerText = "Your Score: " + score + "/3";
+  document.getElementById("result").innerText = "Your Score: " + score + "/4";
 }
 </script>
 
