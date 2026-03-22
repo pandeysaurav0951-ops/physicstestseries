@@ -1,178 +1,94 @@
  <!DOCTYPE html>
 <html>
 <head>
-  <title>Chapter 1 Test</title>
-
+  <title>Chapter 1 Test - Part 1</title>
   <style>
-    body {
-      font-family: Arial;
-      background: #0f172a;
-      color: white;
-      text-align: center;
-    }
-
-    .container {
-      max-width: 500px;
-      margin: auto;
-      background: #1e293b;
-      padding: 20px;
-      border-radius: 10px;
-    }
-
-    .question {
-      display: none;
-      text-align: left;
-    }
-
-    .active {
-      display: block;
-    }
-
-    button {
-      margin: 10px;
-      padding: 10px 20px;
-      background: #38bdf8;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-
-    #result {
-      margin-top: 20px;
-      color: #22c55e;
-      font-size: 18px;
-    }
+    body{margin:0;font-family:'Segoe UI',Arial;background:#0f172a;color:white;}
+    .container{max-width:900px;margin:20px auto;padding:20px;border-radius:10px;background:#1e293b;}
+    .btn{padding:10px 20px;background:#38bdf8;border:none;border-radius:8px;cursor:pointer;font-weight:bold;margin-top:10px;}
+    .btn:hover{background:#0ea5e9;}
+    .answer-btn{display:block;margin:10px 0;padding:10px;width:100%;background:#38bdf8;border:none;border-radius:5px;cursor:pointer;}
+    .answer-btn:hover{background:#0ea5e9;}
+    .correct{color:green;font-weight:bold;}
+    .wrong{color:red;font-weight:bold;}
+    #timer-bar-container{width:100%;background:#334155;border-radius:5px;margin:10px 0;height:20px;}
+    #timer-bar{width:100%;height:100%;background:#38bdf8;border-radius:5px;transition:width 1s linear;}
+    #timer-text{text-align:right;margin-top:-20px;font-size:14px;}
+    .tracker button{width:40px;height:40px;margin:5px;border:none;border-radius:5px;font-weight:bold;cursor:pointer;}
   </style>
 </head>
-
 <body>
-
 <div class="container">
-
-<h2>Chapter 1 Physics Test</h2>
-<h3>Time Left: <span id="time">300</span> sec</h3>
-
-<form id="quizForm">
-
-<!-- Q1 -->
-<div class="question active">
-<p>1. SI unit of electric current?</p>
-<input type="radio" name="q1" value="A"> Ampere<br>
-<input type="radio" name="q1" value="B"> Volt<br>
-<input type="radio" name="q1" value="C"> Ohm<br>
-<input type="radio" name="q1" value="D"> Watt<br>
-</div>
-
-<!-- Q2 -->
-<div class="question">
-<p>2. Unit of charge?</p>
-<input type="radio" name="q2" value="A"> Joule<br>
-<input type="radio" name="q2" value="B"> Coulomb<br>
-<input type="radio" name="q2" value="C"> Newton<br>
-<input type="radio" name="q2" value="D"> Ampere<br>
-</div>
-
-<!-- Q3 -->
-<div class="question">
-<p>3. Ohm's Law kisne diya?</p>
-<input type="radio" name="q3" value="A"> Newton<br>
-<input type="radio" name="q3" value="B"> Einstein<br>
-<input type="radio" name="q3" value="C"> Ohm<br>
-<input type="radio" name="q3" value="D"> Faraday<br>
-</div>
-
-<!-- Q4 -->
-<div class="question">
-<p>4. Potential difference unit?</p>
-<input type="radio" name="q4" value="A"> Watt<br>
-<input type="radio" name="q4" value="B"> Volt<br>
-<input type="radio" name="q4" value="C"> Ampere<br>
-<input type="radio" name="q4" value="D"> Ohm<br>
-</div>
-
-<!-- Q5 -->
-<div class="question">
-<p>5. Resistance unit?</p>
-<input type="radio" name="q5" value="A"> Volt<br>
-<input type="radio" name="q5" value="B"> Ohm<br>
-<input type="radio" name="q5" value="C"> Ampere<br>
-<input type="radio" name="q5" value="D"> Joule<br>
-</div>
-
-</form>
-
-<button type="button" onclick="prevQuestion()">Previous</button>
-<button type="button" onclick="nextQuestion()">Next</button>
-<button type="button" onclick="submitQuiz()">Submit</button>
-
-<h3 id="result"></h3>
-
+  <h2>Chapter 1 - Part 1: Electric Charges & Fields</h2>
+  <div id="timer-bar-container"><div id="timer-bar"></div></div>
+  <div id="timer-text"></div>
+  <div id="question-container"></div>
+  <div class="tracker" id="question-tracker"></div>
+  <div id="results-section" style="display:none;"></div>
 </div>
 
 <script>
+let student=JSON.parse(localStorage.getItem("currentStudent")||"{}");
+let questions=[
+  {q:"Unit of electric charge?", options:["Coulomb","Newton","Joule","Watt"], answer:0},
+  {q:"Electron has what charge?", options:["Positive","Negative","Neutral","Depends"], answer:1},
+  {q:"Coulomb's law relates what?", options:["Charge & Force","Mass & Acceleration","Voltage & Current","Energy & Time"], answer:0}
+];
+let currentQ=0, userAnswers=[], timerInterval, timeLeft=30;
 
-let answers = {
-  q1: "A",
-  q2: "B",
-  q3: "C",
-  q4: "B",
-  q5: "B"
-};
-
-// TIMER
-let timeLeft = 300;
-let timer = setInterval(function() {
-  timeLeft--;
-  document.getElementById("time").innerText = timeLeft;
-
-  if (timeLeft <= 0) {
-    clearInterval(timer);
-    alert("Time's up!");
-    submitQuiz();
-  }
-}, 1000);
-
-// SLIDE SYSTEM
-let current = 0;
-let questions = document.querySelectorAll(".question");
-
-function showQuestion(index) {
-  questions.forEach(q => q.classList.remove("active"));
-  questions[index].classList.add("active");
+function initTracker(){
+  const tracker=document.getElementById('question-tracker');
+  tracker.innerHTML="";
+  questions.forEach((q,i)=>{
+    const btn=document.createElement('button'); btn.innerText=i+1; btn.id="q-btn-"+i; tracker.appendChild(btn);
+  });
 }
 
-function nextQuestion() {
-  if (current < questions.length - 1) {
-    current++;
-    showQuestion(current);
-  }
+function showQuestion(){
+  const container=document.getElementById('question-container');
+  container.innerHTML=""; clearInterval(timerInterval); timeLeft=30; updateTimer();
+  if(currentQ<questions.length){
+    container.innerHTML=`<strong>Q${currentQ+1}: ${questions[currentQ].q}</strong>`;
+    ["A","B","C","D"].forEach((letter,idx)=>{
+      const btn=document.createElement('button'); btn.className="answer-btn"; btn.innerText=`${letter}. ${questions[currentQ].options[idx]}`;
+      btn.onclick=()=>selectAnswer(idx); container.appendChild(btn);
+    });
+    timerInterval=setInterval(()=>{
+      timeLeft--; updateTimer();
+      if(timeLeft<=0){clearInterval(timerInterval); selectAnswer(null);}
+    },1000);
+  } else submitTest();
 }
 
-function prevQuestion() {
-  if (current > 0) {
-    current--;
-    showQuestion(current);
-  }
+function updateTimer(){
+  document.getElementById('timer-bar').style.width=(timeLeft/30*100)+"%";
+  document.getElementById('timer-text').innerText=timeLeft+"s left";
 }
 
-// RESULT
-function submitQuiz() {
-  clearInterval(timer);
-
-  let score = 0;
-
-  for (let i = 1; i <= questions.length; i++) {
-    let q = document.querySelector('input[name="q' + i + '"]:checked');
-    if (q && q.value === answers["q" + i]) {
-      score++;
-    }
-  }
-
-  document.getElementById("result").innerText =
-    "Your Score: " + score + "/" + questions.length;
+function selectAnswer(idx){
+  userAnswers.push(idx);
+  const btn=document.getElementById("q-btn-"+currentQ);
+  if(idx===questions[currentQ].answer) btn.style.background="green"; else btn.style.background="red";
+  currentQ++; showQuestion();
 }
 
+function submitTest(){
+  clearInterval(timerInterval);
+  document.getElementById('question-container').style.display="none";
+  document.getElementById('question-tracker').style.display="none";
+  const resultsDiv=document.getElementById('results-section'); resultsDiv.style.display="block";
+  let score=0, reviewHTML="<h3>Review:</h3>";
+  questions.forEach((q,i)=>{
+    if(userAnswers[i]===q.answer) score++;
+    reviewHTML+=`<p>Q${i+1}: Your: ${q.options[userAnswers[i]]||"No Answer"} | Correct: ${q.options[q.answer]} ${userAnswers[i]===q.answer?'<span class="correct">✔</span>':'<span class="wrong">✖</span>'}</p>`;
+  });
+  resultsDiv.innerHTML=`<p>Name: ${student.name}, Email: ${student.email}</p><p>Score: ${score}/${questions.length}</p>${reviewHTML}`;
+  let allResults=JSON.parse(localStorage.getItem("results")||"[]");
+  allResults.push({name:student.name,email:student.email,chapter:"Chapter 1 - Part 1",score});
+  localStorage.setItem("results",JSON.stringify(allResults));
+}
+
+initTracker(); showQuestion();
 </script>
-
 </body>
-                                                      </html>
+</html>
