@@ -1,14 +1,14 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html>
 <head>
-  <title>Physics Test Dashboard</title>
+  <title>Physics Test Dashboard with Tracking</title>
   <style>
     body {margin:0; font-family:'Segoe UI', Arial; background: linear-gradient(135deg, #0f172a, #1e293b); color:white;}
     .navbar {display:flex; justify-content:space-between; padding:15px 25px; background:#020617;}
     .logo {font-size:20px; font-weight:bold; color:#38bdf8;}
     .menu a {color:white; margin-left:20px; text-decoration:none;}
     .menu a:hover {color:#38bdf8;}
-    .hero, .form-section, .stats, .container, .test-section, .results {max-width:900px; margin:30px auto; padding:20px; border-radius:10px; background:#1e293b;}
+    .hero, .form-section, .stats, .container, .test-section, .results, .admin-section {max-width:900px; margin:30px auto; padding:20px; border-radius:10px; background:#1e293b;}
     .hero h1 {color:#38bdf8; text-align:center;}
     .stats {display:flex; justify-content:center; gap:20px; text-align:center;}
     .box {width:120px; padding:20px; border-radius:10px;}
@@ -23,6 +23,9 @@
     .answer-btn:hover {background:#0ea5e9;}
     .correct {color:green; font-weight:bold;}
     .wrong {color:red; font-weight:bold;}
+    table {width:100%; border-collapse:collapse; margin-top:15px;}
+    th, td {padding:10px; border:1px solid #38bdf8; text-align:left;}
+    th {background:#0ea5e9;}
     .footer {text-align:center; padding:15px; background:#020617; margin-top:20px; font-size:14px;}
   </style>
 </head>
@@ -33,8 +36,7 @@
   <div class="logo">Physics Test</div>
   <div class="menu">
     <a href="#">Home</a>
-    <a href="#">Chapters</a>
-    <a href="#">Result</a>
+    <a href="#" onclick="showAdmin()">Admin</a>
   </div>
 </div>
 
@@ -48,6 +50,7 @@
 <div class="stats">
   <div class="box"><h2 id="total-chapters">0</h2><p>Chapters</p></div>
   <div class="box"><h2 id="total-questions">0</h2><p>Questions</p></div>
+  <div class="box"><h2 id="total-students">0</h2><p>Students</p></div>
 </div>
 
 <!-- STUDENT FORM -->
@@ -72,13 +75,23 @@
   <div id="review"></div>
 </div>
 
+<!-- ADMIN DASHBOARD -->
+<div class="admin-section" id="admin-section" style="display:none;">
+  <h2>Admin Dashboard</h2>
+  <p>Total Students Taken Tests: <span id="admin-total-students">0</span></p>
+  <table id="results-table">
+    <thead><tr><th>Name</th><th>Email</th><th>Chapter</th><th>Score</th></tr></thead>
+    <tbody></tbody>
+  </table>
+</div>
+
 <!-- FOOTER -->
 <div class="footer">© 2026 Physics Test Series | Made by You 😎</div>
 
 <script>
-  // ======== DATA ========
-  let student = {name:"", email:""};
-  let currentChapter = null;
+  // ===== DATA =====
+  let student={name:"", email:""};
+  let currentChapter=null;
   const chapters = {
     "Chapter 1": {
       desc:"Electric Charges & Fields",
@@ -91,21 +104,20 @@
     "Chapter 2": {desc:"Electrostatic Potential", questions:[]},
     "Chapter 3": {desc:"Current Electricity", questions:[]}
   };
+  let currentQ=0,userAnswers=[];
 
-  let currentQ=0, userAnswers=[];
-
-  // ======== INITIALIZE CHAPTER CARDS ========
+  // ===== INIT CHAPTER CARDS =====
   const chapterContainer = document.getElementById('chapter-container');
-  Object.keys(chapters).forEach(ch => {
-    const card = document.createElement('div');
+  Object.keys(chapters).forEach(ch=>{
+    const card=document.createElement('div');
     card.className="card";
-    const chData = chapters[ch];
+    const chData=chapters[ch];
     card.innerHTML=`<h3>${ch}</h3><p>${chData.desc}</p>`;
-    const btn = document.createElement('button');
+    const btn=document.createElement('button');
     btn.className="btn";
     if(chData.questions.length>0){
       btn.innerText="Start Test";
-      btn.onclick = ()=>startChapter(ch);
+      btn.onclick=()=>startChapter(ch);
     } else {
       btn.innerText="Coming Soon";
       btn.disabled=true;
@@ -115,24 +127,21 @@
     chapterContainer.appendChild(card);
   });
 
-  // Update stats dynamically
-  document.getElementById('total-chapters').innerText = Object.keys(chapters).length;
-  let totalQ = 0;
-  Object.values(chapters).forEach(ch=> totalQ += ch.questions.length);
-  document.getElementById('total-questions').innerText = totalQ;
+  // ===== UPDATE STATS =====
+  document.getElementById('total-chapters').innerText=Object.keys(chapters).length;
+  let totalQ=0;
+  Object.values(chapters).forEach(ch=> totalQ+=ch.questions.length);
+  document.getElementById('total-questions').innerText=totalQ;
 
-  // ======== FUNCTIONS ========
+  // ===== FUNCTIONS =====
   function startChapter(chapterName){
-    const name = document.getElementById('studentName').value.trim();
-    const email = document.getElementById('studentEmail').value.trim();
-    if(name === "" || email === ""){
-      alert("Please enter your name and email");
-      return;
-    }
-    student.name = name;
-    student.email = email;
-    currentChapter = chapterName;
-    currentQ = 0;
+    const name=document.getElementById('studentName').value.trim();
+    const email=document.getElementById('studentEmail').value.trim();
+    if(name===""||email===""){ alert("Please enter your name and email"); return; }
+    student.name=name;
+    student.email=email;
+    currentChapter=chapterName;
+    currentQ=0;
     userAnswers=[];
     document.getElementById('form-section').style.display="none";
     document.getElementById('test-section').style.display="block";
@@ -140,17 +149,17 @@
   }
 
   function showQuestion(){
-    const container = document.getElementById('question-container');
+    const container=document.getElementById('question-container');
     container.innerHTML="";
-    const qArr = chapters[currentChapter].questions;
-    if(currentQ < qArr.length){
-      const qObj = qArr[currentQ];
-      const qDiv = document.createElement('div');
+    const qArr=chapters[currentChapter].questions;
+    if(currentQ<qArr.length){
+      const qObj=qArr[currentQ];
+      const qDiv=document.createElement('div');
       qDiv.className="test-question";
       qDiv.innerHTML=`<strong>Q${currentQ+1}: ${qObj.q}</strong>`;
       container.appendChild(qDiv);
       qObj.options.forEach((opt, idx)=>{
-        const btn = document.createElement('button');
+        const btn=document.createElement('button');
         btn.className="answer-btn";
         btn.innerText=opt;
         btn.onclick=()=>selectAnswer(idx);
@@ -168,16 +177,49 @@
   function submitTest(){
     document.getElementById('test-section').style.display="none";
     document.getElementById('results').style.display="block";
-    document.getElementById('student-info').innerText=`Name: ${student.name}, Email: ${student.email}, Chapter: ${currentChapter}`;
-    const qArr = chapters[currentChapter].questions;
+
+    // Calculate score
+    const qArr=chapters[currentChapter].questions;
     let score=0, reviewHTML="<h3>Review:</h3>";
     qArr.forEach((q,i)=>{
       if(userAnswers[i]===q.answer) score++;
-      reviewHTML+=`<p>Q${i+1}: Your answer: ${q.options[userAnswers[i]] || "No Answer"} | Correct: ${q.options[q.answer]} ${userAnswers[i]===q.answer?'<span class="correct">✔</span>':'<span class="wrong">✖</span>'}</p>`;
+      reviewHTML+=`<p>Q${i+1}: Your answer: ${q.options[userAnswers[i]]||"No Answer"} | Correct: ${q.options[q.answer]} ${userAnswers[i]===q.answer?'<span class="correct">✔</span>':'<span class="wrong">✖</span>'}</p>`;
     });
+    document.getElementById('student-info').innerText=`Name: ${student.name}, Email: ${student.email}, Chapter: ${currentChapter}`;
     document.getElementById('score').innerText=`Score: ${score} / ${qArr.length}`;
     document.getElementById('review').innerHTML=reviewHTML;
+
+    // Save to localStorage
+    saveResult(student.name, student.email, currentChapter, score);
   }
+
+  // ===== LOCALSTORAGE =====
+  function saveResult(name,email,chapter,score){
+    let results=JSON.parse(localStorage.getItem("results")||"[]");
+    results.push({name,email,chapter,score});
+    localStorage.setItem("results",JSON.stringify(results));
+    document.getElementById('total-students').innerText=results.length;
+  }
+
+  // ===== ADMIN DASHBOARD =====
+  function showAdmin(){
+    document.getElementById('form-section').style.display="none";
+    document.getElementById('test-section').style.display="none";
+    document.getElementById('results').style.display="none";
+    document.getElementById('admin-section').style.display="block";
+    const resultsTable=document.querySelector("#results-table tbody");
+    resultsTable.innerHTML="";
+    const results=JSON.parse(localStorage.getItem("results")||"[]");
+    document.getElementById('admin-total-students').innerText=results.length;
+    results.forEach(r=>{
+      const row=document.createElement('tr');
+      row.innerHTML=`<td>${r.name}</td><td>${r.email}</td><td>${r.chapter}</td><td>${r.score}</td>`;
+      resultsTable.appendChild(row);
+    });
+  }
+
+  // ===== LOAD TOTAL STUDENTS ON PAGE LOAD =====
+  document.getElementById('total-students').innerText=JSON.parse(localStorage.getItem("results")||"[]").length;
 </script>
 
 </body>
