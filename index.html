@@ -1,12 +1,12 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html>
 <head>
-  <title>Physics Test Dashboard with Tracking</title>
+  <title>Physics Test Dashboard with Admin</title>
   <style>
     body {margin:0; font-family:'Segoe UI', Arial; background: linear-gradient(135deg, #0f172a, #1e293b); color:white;}
     .navbar {display:flex; justify-content:space-between; padding:15px 25px; background:#020617;}
     .logo {font-size:20px; font-weight:bold; color:#38bdf8;}
-    .menu a {color:white; margin-left:20px; text-decoration:none;}
+    .menu a {color:white; margin-left:20px; text-decoration:none; cursor:pointer;}
     .menu a:hover {color:#38bdf8;}
     .hero, .form-section, .stats, .container, .test-section, .results, .admin-section {max-width:900px; margin:30px auto; padding:20px; border-radius:10px; background:#1e293b;}
     .hero h1 {color:#38bdf8; text-align:center;}
@@ -35,8 +35,8 @@
 <div class="navbar">
   <div class="logo">Physics Test</div>
   <div class="menu">
-    <a href="#">Home</a>
-    <a href="#" onclick="showAdmin()">Admin</a>
+    <a onclick="location.reload()">Home</a>
+    <a onclick="showAdmin()">Admin</a>
   </div>
 </div>
 
@@ -93,14 +93,11 @@
   let student={name:"", email:""};
   let currentChapter=null;
   const chapters = {
-    "Chapter 1": {
-      desc:"Electric Charges & Fields",
-      questions:[
-        {q:"What is 2 + 2?", options:["3","4","5","6"], answer:1},
-        {q:"Capital of India?", options:["Delhi","Mumbai","Kolkata","Chennai"], answer:0},
-        {q:"Which planet is known as Red Planet?", options:["Earth","Venus","Mars","Jupiter"], answer:2}
-      ]
-    },
+    "Chapter 1": {desc:"Electric Charges & Fields", questions:[
+      {q:"What is 2 + 2?", options:["3","4","5","6"], answer:1},
+      {q:"Capital of India?", options:["Delhi","Mumbai","Kolkata","Chennai"], answer:0},
+      {q:"Which planet is known as Red Planet?", options:["Earth","Venus","Mars","Jupiter"], answer:2}
+    ]},
     "Chapter 2": {desc:"Electrostatic Potential", questions:[]},
     "Chapter 3": {desc:"Current Electricity", questions:[]}
   };
@@ -132,6 +129,7 @@
   let totalQ=0;
   Object.values(chapters).forEach(ch=> totalQ+=ch.questions.length);
   document.getElementById('total-questions').innerText=totalQ;
+  document.getElementById('total-students').innerText=JSON.parse(localStorage.getItem("results")||"[]").length;
 
   // ===== FUNCTIONS =====
   function startChapter(chapterName){
@@ -178,7 +176,6 @@
     document.getElementById('test-section').style.display="none";
     document.getElementById('results').style.display="block";
 
-    // Calculate score
     const qArr=chapters[currentChapter].questions;
     let score=0, reviewHTML="<h3>Review:</h3>";
     qArr.forEach((q,i)=>{
@@ -189,7 +186,6 @@
     document.getElementById('score').innerText=`Score: ${score} / ${qArr.length}`;
     document.getElementById('review').innerHTML=reviewHTML;
 
-    // Save to localStorage
     saveResult(student.name, student.email, currentChapter, score);
   }
 
@@ -201,12 +197,21 @@
     document.getElementById('total-students').innerText=results.length;
   }
 
-  // ===== ADMIN DASHBOARD =====
+  // ===== PASSWORD-PROTECTED ADMIN =====
   function showAdmin(){
-    document.getElementById('form-section').style.display="none";
-    document.getElementById('test-section').style.display="none";
-    document.getElementById('results').style.display="none";
-    document.getElementById('admin-section').style.display="block";
+    const password = prompt("Enter Admin Password:");
+    if(password === "PhysicsAdmin123"){ // Change password here
+      document.getElementById('form-section').style.display="none";
+      document.getElementById('test-section').style.display="none";
+      document.getElementById('results').style.display="none";
+      document.getElementById('admin-section').style.display="block";
+      loadAdminTable();
+    } else {
+      alert("Access Denied! Wrong Password.");
+    }
+  }
+
+  function loadAdminTable(){
     const resultsTable=document.querySelector("#results-table tbody");
     resultsTable.innerHTML="";
     const results=JSON.parse(localStorage.getItem("results")||"[]");
@@ -217,9 +222,6 @@
       resultsTable.appendChild(row);
     });
   }
-
-  // ===== LOAD TOTAL STUDENTS ON PAGE LOAD =====
-  document.getElementById('total-students').innerText=JSON.parse(localStorage.getItem("results")||"[]").length;
 </script>
 
 </body>
