@@ -12,32 +12,14 @@
     input{padding:10px;width:95%;margin:8px 0;border-radius:5px;border:none;}
     .btn{padding:10px 20px;background:#38bdf8;border:none;border-radius:8px;cursor:pointer;font-weight:bold;margin-top:10px;}
     .btn:hover{background:#0ea5e9;}
-    #question-container{margin-top:20px;}
-    .answer-btn{display:block;margin:10px 0;padding:10px;width:100%;background:#38bdf8;border:none;border-radius:5px;cursor:pointer;}
-    .answer-btn:hover{background:#0ea5e9;}
-    .correct{color:green;font-weight:bold;}
-    .wrong{color:red;font-weight:bold;}
-    #timer-bar-container{width:100%;background:#334155;border-radius:5px;margin:10px 0;height:20px;}
-    #timer-bar{width:100%;height:100%;background:#38bdf8;border-radius:5px;transition:width 1s linear;}
-    #timer-text{text-align:right;margin-top:-20px;font-size:14px;}
-    .tracker button{width:40px;height:40px;margin:5px;border:none;border-radius:5px;font-weight:bold;cursor:pointer;}
-    table{width:100%;border-collapse:collapse;margin-top:15px;}
-    th,td{padding:10px;border:1px solid #38bdf8;text-align:left;}
-    th{background:#0ea5e9;}
-    .footer{text-align:center;padding:15px;background:#020617;margin-top:20px;font-size:14px;}
   </style>
 </head>
 <body>
 
 <div class="navbar">
   <div class="logo">Physics Test</div>
-  <div class="menu">
-    <a onclick="location.reload()">Home</a>
-    <a onclick="showAdmin()">Admin</a>
-  </div>
 </div>
 
-<!-- HOME / INSTRUCTIONS -->
 <div class="container" id="home-section">
   <h1>Welcome to Physics Test Portal</h1>
   <p>Follow these steps:</p>
@@ -48,239 +30,36 @@
     <li>Answer correctly to turn question tracker green, wrong turns red</li>
     <li>Last question auto-submits the test</li>
   </ol>
-  <button class="btn" onclick="showForm()">Start Test</button>
-</div>
 
-<!-- STUDENT FORM -->
-<div class="container" id="form-section" style="display:none;">
   <h2>Enter Your Details</h2>
   <input type="text" id="studentName" placeholder="Enter your name" required>
   <input type="email" id="studentEmail" placeholder="Enter your email" required>
-  <p>Select Chapter:</p>
+
+  <h3>Select Chapter:</h3>
   <div id="chapter-container"></div>
 </div>
 
-<!-- TEST SECTION -->
-<div class="container" id="test-section" style="display:none;">
-  <div id="timer-bar-container"><div id="timer-bar"></div></div>
-  <div id="timer-text"></div>
-  <div id="question-container"></div>
-  <div class="tracker" id="question-tracker"></div>
-</div>
-
-<!-- RESULTS -->
-<div class="container" id="results-section" style="display:none;">
-  <h2>Test Results</h2>
-  <p id="student-info"></p>
-  <p id="score"></p>
-  <div id="review"></div>
-</div>
-
-<!-- ADMIN DASHBOARD -->
-<div class="container" id="admin-section" style="display:none;">
-  <h2>Admin Dashboard</h2>
-  <button class="btn" onclick="adminReset()">Reset Results</button>
-  <p>Total Students Taken Tests: <span id="admin-total-students">0</span></p>
-  <table id="results-table">
-    <thead>
-      <tr><th>Name</th><th>Email</th><th>Chapter</th><th>Score</th></tr>
-    </thead>
-    <tbody></tbody>
-  </table>
-</div>
-
-<div class="footer">© 2026 Physics Test Series | Made by You 😎</div>
-
 <script>
-let student={name:"",email:""};
-let currentChapter=null, currentQ=0, userAnswers=[];
-let timerInterval, timeLeft=30;
+const chapters=[
+  {name:"Chapter 1 - Part 1", file:"chapter1.html"},
+  {name:"Chapter 2", file:"chapter2.html"},
+  {name:"Chapter 3", file:"chapter3.html"}
+];
 
-// Chapters & questions
-const chapters={
-  "Chapter 1":{desc:"Electric Charges & Fields",questions:[
-    {q:"Unit of electric charge?",options:["Coulomb","Newton","Joule","Watt"],answer:0},
-    {q:"Electron has what charge?",options:["Positive","Negative","Neutral","Depends"],answer:1},
-    {q:"Coulomb's law relates what?",options:["Charge & Force","Mass & Acceleration","Voltage & Current","Energy & Time"],answer:0}
-  ]},
-  "Chapter 2":{desc:"Electrostatic Potential",questions:[]},
-  "Chapter 3":{desc:"Current Electricity",questions:[]}
-};
-
-// Show form
-function showForm(){
-  document.getElementById('home-section').style.display="none";
-  document.getElementById('form-section').style.display="block";
-  initChapters();
-}
-
-// Initialize chapter buttons
-function initChapters(){
-  const container=document.getElementById('chapter-container');
-  container.innerHTML="";
-  Object.keys(chapters).forEach((ch,i)=>{
-    const card=document.createElement('button');
-    card.className="btn";
-    if(chapters[ch].questions.length>0){
-      card.innerText=ch+": "+chapters[ch].desc;
-      card.onclick=()=>startChapter(ch);
-    } else {
-      card.innerText=ch+": Coming Soon"; card.disabled=true;
-    }
-    container.appendChild(card);
-  });
-}
-
-// Start chapter
-function startChapter(chapterName){
-  const name=document.getElementById('studentName').value.trim();
-  const email=document.getElementById('studentEmail').value.trim();
-  if(name===""||email===""){alert("Enter name & email");return;}
-  
-  let results=JSON.parse(localStorage.getItem("results")||"[]");
-  if(results.some(r=>r.email===email && r.chapter===chapterName)){
-    alert("You already attempted this chapter!"); return;
-  }
-
-  student.name=name; student.email=email;
-  currentChapter=chapterName; currentQ=0; userAnswers=[];
-  document.getElementById('form-section').style.display="none";
-  document.getElementById('test-section').style.display="block";
-  initTracker();
-  showQuestion();
-}
-
-// Question tracker buttons
-function initTracker(){
-  const tracker=document.getElementById('question-tracker');
-  tracker.innerHTML="";
-  const totalQ=chapters[currentChapter].questions.length;
-  for(let i=0;i<totalQ;i++){
-    const btn=document.createElement('button');
-    btn.innerText=i+1;
-    btn.id="q-btn-"+i;
-    tracker.appendChild(btn);
-  }
-}
-
-// Show question
-function showQuestion(){
-  const container=document.getElementById('question-container');
-  container.innerHTML="";
-  clearInterval(timerInterval);
-  timeLeft=30; updateTimerDisplay();
-  
-  const qArr=chapters[currentChapter].questions;
-  if(currentQ<qArr.length){
-    const qObj=qArr[currentQ];
-    container.innerHTML=`<strong>Q${currentQ+1}: ${qObj.q}</strong>`;
-    const letters=["A","B","C","D"];
-    qObj.options.forEach((opt,idx)=>{
-      const btn=document.createElement('button');
-      btn.className="answer-btn";
-      btn.innerText=`${letters[idx]}. ${opt}`;
-      btn.onclick=()=>selectAnswer(idx);
-      container.appendChild(btn);
-    });
-    timerInterval=setInterval(()=>{
-      timeLeft--; updateTimerDisplay();
-      if(timeLeft<=0){clearInterval(timerInterval); selectAnswer(null);}
-    },1000);
-  } else submitTest();
-}
-
-// Timer display
-function updateTimerDisplay(){
-  const bar=document.getElementById('timer-bar');
-  const text=document.getElementById('timer-text');
-  bar.style.width=(timeLeft/30*100)+"%";
-  text.innerText=timeLeft+"s left";
-}
-
-// Select answer
-function selectAnswer(idx){
-  const qArr=chapters[currentChapter].questions;
-  userAnswers.push(idx);
-  const btn=document.getElementById("q-btn-"+currentQ);
-  if(idx===qArr[currentQ].answer) btn.style.background="green";
-  else btn.style.background="red";
-  currentQ++;
-  showQuestion();
-}
-
-// Submit test
-function submitTest(){
-  document.getElementById('test-section').style.display="none";
-  const qArr=chapters[currentChapter].questions;
-  let score=0, reviewHTML="<h3>Review:</h3>";
-  qArr.forEach((q,i)=>{
-    if(userAnswers[i]===q.answer) score++;
-    reviewHTML+=`<p>Q${i+1}: Your: ${q.options[userAnswers[i]]||"No Answer"} | Correct: ${q.options[q.answer]} ${userAnswers[i]===q.answer?'<span class="correct">✔</span>':'<span class="wrong">✖</span>'}</p>`;
-  });
-  document.getElementById('results-section').style.display="block";
-  document.getElementById('student-info').innerText=`Name: ${student.name}, Email: ${student.email}, Chapter: ${currentChapter}`;
-  document.getElementById('score').innerText=`Score: ${score}/${qArr.length}`;
-
-  saveResult(student.name, student.email, currentChapter, score);
-  document.getElementById('review').innerHTML=reviewHTML;
-}
-
-// Save result
-function saveResult(name,email,chapter,score){
-  let results=JSON.parse(localStorage.getItem("results")||"[]");
-  results.push({name,email,chapter,score});
-  localStorage.setItem("results",JSON.stringify(results));
-}
-
-// Show admin dashboard
-function showAdmin(){
-  const password=prompt("Enter Admin Password:");
-  if(password==="PhysicsAdmin123"){
-    document.getElementById('home-section').style.display="none";
-    document.getElementById('form-section').style.display="none";
-    document.getElementById('test-section').style.display="none";
-    document.getElementById('results-section').style.display="none";
-    document.getElementById('admin-section').style.display="block";
-    loadAdminTable();
-  } else alert("Access Denied!");
-}
-
-// Load admin table
-function loadAdminTable(){
-  const resultsTable=document.querySelector("#results-table tbody");
-  resultsTable.innerHTML="";
-  const results=JSON.parse(localStorage.getItem("results")||"[]");
-  document.getElementById('admin-total-students').innerText=results.length;
-  results.forEach(r=>{
-    const row=document.createElement('tr');
-    row.innerHTML=`<td>${r.name}</td><td>${r.email}</td><td>${r.chapter}</td><td>${r.score}</td>`;
-    resultsTable.appendChild(row);
-  });
-}
-
-// Admin Reset
-function adminReset(){
-  const password = prompt("Enter Admin Password to Reset:");
-  if(password !== "PhysicsAdmin123"){ alert("Access Denied!"); return; }
-
-  const choice = prompt("Type 'all' to reset all results or chapter number to reset specific chapter (1,2,3):");
-  if(!choice) return;
-
-  let results = JSON.parse(localStorage.getItem("results")||"[]");
-  if(choice.toLowerCase() === 'all'){
-    localStorage.removeItem("results");
-    alert("All student results cleared!");
-  } else {
-    const chapterKey = "Chapter " + choice;
-    results = results.filter(r => r.chapter !== chapterKey);
-    localStorage.setItem("results", JSON.stringify(results));
-    alert(`Results for ${chapterKey} cleared!`);
-  }
-
-  if(document.getElementById('admin-section').style.display==="block"){
-    loadAdminTable();
-  }
-}
+const container=document.getElementById('chapter-container');
+chapters.forEach(ch=>{
+  const btn=document.createElement('button');
+  btn.className="btn";
+  btn.innerText=ch.name;
+  btn.onclick=()=>{
+    const name=document.getElementById('studentName').value.trim();
+    const email=document.getElementById('studentEmail').value.trim();
+    if(!name || !email){alert("Enter name and email"); return;}
+    localStorage.setItem("currentStudent", JSON.stringify({name,email}));
+    window.location.href=ch.file;
+  };
+  container.appendChild(btn);
+});
 </script>
 </body>
 </html>
