@@ -1,32 +1,30 @@
  <!DOCTYPE html>
 <html>
 <head>
-  <title>Physics Test Dashboard with Admin & Restrictions</title>
+  <title>Physics Test Portal</title>
   <style>
-    body {margin:0; font-family:'Segoe UI', Arial; background: linear-gradient(135deg, #0f172a, #1e293b); color:white;}
-    .navbar {display:flex; justify-content:space-between; padding:15px 25px; background:#020617;}
-    .logo {font-size:20px; font-weight:bold; color:#38bdf8;}
-    .menu a {color:white; margin-left:20px; text-decoration:none; cursor:pointer;}
-    .menu a:hover {color:#38bdf8;}
-    .hero, .form-section, .stats, .container, .test-section, .results, .admin-section {max-width:900px; margin:30px auto; padding:20px; border-radius:10px; background:#1e293b;}
-    .hero h1 {color:#38bdf8; text-align:center;}
-    .stats {display:flex; justify-content:center; gap:20px; text-align:center;}
-    .box {width:120px; padding:20px; border-radius:10px;}
-    .container {display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:20px;}
-    .card {padding:20px; border-radius:15px; text-align:center; transition:0.3s;}
-    .card:hover {transform:translateY(-10px); box-shadow:0 0 15px #38bdf8;}
-    .btn {margin-top:10px; padding:10px 20px; background:#38bdf8; border:none; border-radius:8px; cursor:pointer; font-weight:bold;}
-    .btn:hover {background:#0ea5e9;}
-    input {padding:10px; width:95%; margin:8px 0; border-radius:5px; border:none;}
-    .test-question {margin:20px 0;}
-    .answer-btn {display:block; margin:10px 0; padding:10px; width:100%; background:#38bdf8; border:none; border-radius:5px; cursor:pointer;}
-    .answer-btn:hover {background:#0ea5e9;}
-    .correct {color:green; font-weight:bold;}
-    .wrong {color:red; font-weight:bold;}
-    table {width:100%; border-collapse:collapse; margin-top:15px;}
-    th, td {padding:10px; border:1px solid #38bdf8; text-align:left;}
-    th {background:#0ea5e9;}
-    .footer {text-align:center; padding:15px; background:#020617; margin-top:20px; font-size:14px;}
+    body{margin:0;font-family:'Segoe UI',Arial;background:#0f172a;color:white;}
+    .navbar{display:flex;justify-content:space-between;padding:15px 25px;background:#020617;}
+    .logo{font-size:20px;font-weight:bold;color:#38bdf8;}
+    .menu a{color:white;margin-left:20px;text-decoration:none;cursor:pointer;}
+    .menu a:hover{color:#38bdf8;}
+    .container{max-width:900px;margin:20px auto;padding:20px;border-radius:10px;background:#1e293b;}
+    input{padding:10px;width:95%;margin:8px 0;border-radius:5px;border:none;}
+    .btn{padding:10px 20px;background:#38bdf8;border:none;border-radius:8px;cursor:pointer;font-weight:bold;margin-top:10px;}
+    .btn:hover{background:#0ea5e9;}
+    #question-container{margin-top:20px;}
+    .answer-btn{display:block;margin:10px 0;padding:10px;width:100%;background:#38bdf8;border:none;border-radius:5px;cursor:pointer;}
+    .answer-btn:hover{background:#0ea5e9;}
+    .correct{color:green;font-weight:bold;}
+    .wrong{color:red;font-weight:bold;}
+    #timer-bar-container{width:100%;background:#334155;border-radius:5px;margin:10px 0;height:20px;}
+    #timer-bar{width:100%;height:100%;background:#38bdf8;border-radius:5px;transition:width 1s linear;}
+    #timer-text{text-align:right;margin-top:-20px;font-size:14px;}
+    .tracker button{width:40px;height:40px;margin:5px;border:none;border-radius:5px;font-weight:bold;cursor:pointer;}
+    table{width:100%;border-collapse:collapse;margin-top:15px;}
+    th,td{padding:10px;border:1px solid #38bdf8;text-align:left;}
+    th{background:#0ea5e9;}
+    .footer{text-align:center;padding:15px;background:#020617;margin-top:20px;font-size:14px;}
   </style>
 </head>
 <body>
@@ -39,37 +37,47 @@
   </div>
 </div>
 
-<div class="hero">
-  <h1>Welcome to Physics Test Series</h1>
-  <p>Practice Chapter-wise Tests for Class 12</p>
+<!-- HOME / INSTRUCTIONS -->
+<div class="container" id="home-section">
+  <h1>Welcome to Physics Test Portal</h1>
+  <p>Follow these steps:</p>
+  <ol>
+    <li>Enter your Name & Email</li>
+    <li>Select a chapter and start the test</li>
+    <li>Each question has 30s time limit</li>
+    <li>Answer correctly to turn question tracker green, wrong turns red</li>
+    <li>Last question auto-submits the test</li>
+  </ol>
+  <button class="btn" onclick="showForm()">Start Test</button>
 </div>
 
-<div class="stats">
-  <div class="box"><h2 id="total-chapters">0</h2><p>Chapters</p></div>
-  <div class="box"><h2 id="total-questions">0</h2><p>Questions</p></div>
-  <div class="box"><h2 id="total-students">0</h2><p>Students</p></div>
-</div>
-
-<div class="form-section" id="form-section">
+<!-- STUDENT FORM -->
+<div class="container" id="form-section" style="display:none;">
   <h2>Enter Your Details</h2>
   <input type="text" id="studentName" placeholder="Enter your name" required>
   <input type="email" id="studentEmail" placeholder="Enter your email" required>
-  <p>Select a Chapter to Start Test:</p>
-  <div class="container" id="chapter-container"></div>
+  <p>Select Chapter:</p>
+  <div id="chapter-container"></div>
 </div>
 
-<div class="test-section" id="test-section" style="display:none;">
+<!-- TEST SECTION -->
+<div class="container" id="test-section" style="display:none;">
+  <div id="timer-bar-container"><div id="timer-bar"></div></div>
+  <div id="timer-text"></div>
   <div id="question-container"></div>
+  <div class="tracker" id="question-tracker"></div>
 </div>
 
-<div class="results" id="results" style="display:none;">
+<!-- RESULTS -->
+<div class="container" id="results-section" style="display:none;">
   <h2>Test Results</h2>
   <p id="student-info"></p>
   <p id="score"></p>
   <div id="review"></div>
 </div>
 
-<div class="admin-section" id="admin-section" style="display:none;">
+<!-- ADMIN DASHBOARD -->
+<div class="container" id="admin-section" style="display:none;">
   <h2>Admin Dashboard</h2>
   <p>Total Students Taken Tests: <span id="admin-total-students">0</span></p>
   <table id="results-table">
@@ -81,132 +89,148 @@
 <div class="footer">© 2026 Physics Test Series | Made by You 😎</div>
 
 <script>
-let student={name:"", email:""};
-let currentChapter=null;
-const chapters = {
-  "Chapter 1": {desc:"Electric Charges & Fields", questions:[
-    {q:"What is 2 + 2?", options:["3","4","5","6"], answer:1},
-    {q:"Capital of India?", options:["Delhi","Mumbai","Kolkata","Chennai"], answer:0},
-    {q:"Which planet is known as Red Planet?", options:["Earth","Venus","Mars","Jupiter"], answer:2}
+let student={name:"",email:""};
+let currentChapter=null, currentQ=0, userAnswers=[];
+let timerInterval, timeLeft=30;
+
+const chapters={
+  "Chapter 1":{desc:"Electric Charges & Fields",questions:[
+    {q:"What is 2 + 2?",options:["3","4","5","6"],answer:1},
+    {q:"Capital of India?",options:["Delhi","Mumbai","Kolkata","Chennai"],answer:0},
+    {q:"Red Planet?",options:["Earth","Venus","Mars","Jupiter"],answer:2}
   ]},
-  "Chapter 2": {desc:"Electrostatic Potential", questions:[]},
-  "Chapter 3": {desc:"Current Electricity", questions:[]}
+  "Chapter 2":{desc:"Electrostatic Potential",questions:[]},
+  "Chapter 3":{desc:"Current Electricity",questions:[]}
 };
-let currentQ=0,userAnswers=[];
 
-// Init chapter cards
-const chapterContainer = document.getElementById('chapter-container');
-Object.keys(chapters).forEach(ch=>{
-  const card=document.createElement('div');
-  card.className="card";
-  const chData=chapters[ch];
-  card.innerHTML=`<h3>${ch}</h3><p>${chData.desc}</p>`;
-  const btn=document.createElement('button');
-  btn.className="btn";
-  if(chData.questions.length>0){
-    btn.innerText="Start Test";
-    btn.onclick=()=>startChapter(ch);
-  } else {
-    btn.innerText="Coming Soon";
-    btn.disabled=true;
-    btn.title="Coming Soon";
-  }
-  card.appendChild(btn);
-  chapterContainer.appendChild(card);
-});
+function showForm(){
+  document.getElementById('home-section').style.display="none";
+  document.getElementById('form-section').style.display="block";
+  initChapters();
+}
 
-// Update stats
-document.getElementById('total-chapters').innerText=Object.keys(chapters).length;
-let totalQ=0; Object.values(chapters).forEach(ch=> totalQ+=ch.questions.length);
-document.getElementById('total-questions').innerText=totalQ;
-document.getElementById('total-students').innerText=JSON.parse(localStorage.getItem("results")||"[]").length;
+function initChapters(){
+  const container=document.getElementById('chapter-container');
+  container.innerHTML="";
+  Object.keys(chapters).forEach((ch,i)=>{
+    const card=document.createElement('button');
+    card.className="btn";
+    if(chapters[ch].questions.length>0){
+      card.innerText=ch+": "+chapters[ch].desc;
+      card.onclick=()=>startChapter(ch);
+    } else {
+      card.innerText=ch+": Coming Soon"; card.disabled=true;
+    }
+    container.appendChild(card);
+  });
+}
 
-// Start Chapter
 function startChapter(chapterName){
   const name=document.getElementById('studentName').value.trim();
   const email=document.getElementById('studentEmail').value.trim();
-  if(name===""||email===""){ alert("Please enter your name and email"); return; }
-
-  // Check duplicate attempt
+  if(name===""||email===""){alert("Enter name & email");return;}
+  
+  // check duplicate attempt
   let results=JSON.parse(localStorage.getItem("results")||"[]");
-  let attempted = results.some(r => r.email === email && r.chapter === chapterName);
-  if(attempted){ alert("You have already attempted this chapter!"); return; }
+  if(results.some(r=>r.email===email && r.chapter===chapterName)){
+    alert("You already attempted this chapter!"); return;
+  }
 
-  student.name=name;
-  student.email=email;
-  currentChapter=chapterName;
-  currentQ=0;
-  userAnswers=[];
+  student.name=name; student.email=email;
+  currentChapter=chapterName; currentQ=0; userAnswers=[];
   document.getElementById('form-section').style.display="none";
   document.getElementById('test-section').style.display="block";
+  initTracker();
   showQuestion();
 }
 
-// Show Question with letters
+function initTracker(){
+  const tracker=document.getElementById('question-tracker');
+  tracker.innerHTML="";
+  const totalQ=chapters[currentChapter].questions.length;
+  for(let i=0;i<totalQ;i++){
+    const btn=document.createElement('button');
+    btn.innerText=i+1;
+    btn.id="q-btn-"+i;
+    tracker.appendChild(btn);
+  }
+}
+
 function showQuestion(){
   const container=document.getElementById('question-container');
   container.innerHTML="";
+  clearInterval(timerInterval);
+  timeLeft=30; updateTimerDisplay();
+  
   const qArr=chapters[currentChapter].questions;
   if(currentQ<qArr.length){
     const qObj=qArr[currentQ];
-    const qDiv=document.createElement('div');
-    qDiv.className="test-question";
-    qDiv.innerHTML=`<strong>Q${currentQ+1}: ${qObj.q}</strong>`;
-    container.appendChild(qDiv);
-
+    container.innerHTML=`<strong>Q${currentQ+1}: ${qObj.q}</strong>`;
     const letters=["A","B","C","D"];
-    qObj.options.forEach((opt, idx)=>{
+    qObj.options.forEach((opt,idx)=>{
       const btn=document.createElement('button');
       btn.className="answer-btn";
       btn.innerText=`${letters[idx]}. ${opt}`;
       btn.onclick=()=>selectAnswer(idx);
       container.appendChild(btn);
     });
+    timerInterval=setInterval(()=>{
+      timeLeft--; updateTimerDisplay();
+      if(timeLeft<=0){clearInterval(timerInterval); selectAnswer(null);}
+    },1000);
   } else submitTest();
 }
 
+function updateTimerDisplay(){
+  const bar=document.getElementById('timer-bar');
+  const text=document.getElementById('timer-text');
+  bar.style.width=(timeLeft/30*100)+"%";
+  text.innerText=timeLeft+"s left";
+}
+
 function selectAnswer(idx){
+  const qArr=chapters[currentChapter].questions;
   userAnswers.push(idx);
+  // update tracker
+  const btn=document.getElementById("q-btn-"+currentQ);
+  if(idx===qArr[currentQ].answer) btn.style.background="green";
+  else btn.style.background="red";
   currentQ++;
   showQuestion();
 }
 
-// Submit Test
 function submitTest(){
   document.getElementById('test-section').style.display="none";
-  document.getElementById('results').style.display="block";
-
   const qArr=chapters[currentChapter].questions;
   let score=0, reviewHTML="<h3>Review:</h3>";
   qArr.forEach((q,i)=>{
     if(userAnswers[i]===q.answer) score++;
-    reviewHTML+=`<p>Q${i+1}: Your answer: ${q.options[userAnswers[i]]||"No Answer"} | Correct: ${q.options[q.answer]} ${userAnswers[i]===q.answer?'<span class="correct">✔</span>':'<span class="wrong">✖</span>'}</p>`;
+    reviewHTML+=`<p>Q${i+1}: Your: ${q.options[userAnswers[i]]||"No Answer"} | Correct: ${q.options[q.answer]} ${userAnswers[i]===q.answer?'<span class="correct">✔</span>':'<span class="wrong">✖</span>'}</p>`;
   });
+  document.getElementById('results-section').style.display="block";
   document.getElementById('student-info').innerText=`Name: ${student.name}, Email: ${student.email}, Chapter: ${currentChapter}`;
-  document.getElementById('score').innerText=`Score: ${score} / ${qArr.length}`;
+  document.getElementById('score').innerText=`Score: ${score}/${qArr.length}`;
   document.getElementById('review').innerHTML=reviewHTML;
 
   saveResult(student.name, student.email, currentChapter, score);
 }
 
-// LocalStorage save
 function saveResult(name,email,chapter,score){
   let results=JSON.parse(localStorage.getItem("results")||"[]");
   results.push({name,email,chapter,score});
   localStorage.setItem("results",JSON.stringify(results));
-  document.getElementById('total-students').innerText=results.length;
 }
 
-// Admin (password protected)
 function showAdmin(){
-  const password = prompt("Enter Admin Password:");
-  if(password === "PhysicsAdmin123"){ 
+  const password=prompt("Enter Admin Password:");
+  if(password==="PhysicsAdmin123"){
+    document.getElementById('home-section').style.display="none";
     document.getElementById('form-section').style.display="none";
     document.getElementById('test-section').style.display="none";
-    document.getElementById('results').style.display="none";
+    document.getElementById('results-section').style.display="none";
     document.getElementById('admin-section').style.display="block";
     loadAdminTable();
-  } else { alert("Access Denied! Wrong Password."); }
+  } else alert("Access Denied!");
 }
 
 function loadAdminTable(){
@@ -221,48 +245,5 @@ function loadAdminTable(){
   });
 }
 </script>
-
 </body>
 </html>
-<!-- TIMER + PROGRESS BAR SNIPPET START -->
-<style>
-#timer-bar-container {width:100%; background:#334155; border-radius:5px; margin:10px 0; height:20px;}
-#timer-bar {width:100%; height:100%; background:#38bdf8; border-radius:5px; transition: width 1s linear;}
-#timer-text {text-align:right; margin-top:-20px; font-size:14px;}
-</style>
-
-<div id="timer-bar-container"><div id="timer-bar"></div></div>
-<div id="timer-text"></div>
-
-<script>
-let timerInterval, timeLeft=30; // seconds per question
-
-function startTimer(){
-  clearInterval(timerInterval);
-  timeLeft=30; // set per question time
-  updateTimerDisplay();
-  timerInterval=setInterval(()=>{
-    timeLeft--;
-    updateTimerDisplay();
-    if(timeLeft<=0){
-      clearInterval(timerInterval);
-      selectAnswer(null); // auto-next with no answer
-    }
-  },1000);
-}
-
-function updateTimerDisplay(){
-  const bar=document.getElementById('timer-bar');
-  const text=document.getElementById('timer-text');
-  bar.style.width = (timeLeft/30*100) + "%";
-  text.innerText = timeLeft + "s left";
-}
-
-// Override showQuestion() to include timer
-const originalShowQuestion = showQuestion;
-showQuestion = function(){
-  originalShowQuestion();
-  startTimer();
-}
-</script>
-<!-- TIMER + PROGRESS BAR SNIPPET END -->
