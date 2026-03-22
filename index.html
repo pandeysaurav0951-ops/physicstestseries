@@ -224,3 +224,45 @@ function loadAdminTable(){
 
 </body>
 </html>
+<!-- TIMER + PROGRESS BAR SNIPPET START -->
+<style>
+#timer-bar-container {width:100%; background:#334155; border-radius:5px; margin:10px 0; height:20px;}
+#timer-bar {width:100%; height:100%; background:#38bdf8; border-radius:5px; transition: width 1s linear;}
+#timer-text {text-align:right; margin-top:-20px; font-size:14px;}
+</style>
+
+<div id="timer-bar-container"><div id="timer-bar"></div></div>
+<div id="timer-text"></div>
+
+<script>
+let timerInterval, timeLeft=30; // seconds per question
+
+function startTimer(){
+  clearInterval(timerInterval);
+  timeLeft=30; // set per question time
+  updateTimerDisplay();
+  timerInterval=setInterval(()=>{
+    timeLeft--;
+    updateTimerDisplay();
+    if(timeLeft<=0){
+      clearInterval(timerInterval);
+      selectAnswer(null); // auto-next with no answer
+    }
+  },1000);
+}
+
+function updateTimerDisplay(){
+  const bar=document.getElementById('timer-bar');
+  const text=document.getElementById('timer-text');
+  bar.style.width = (timeLeft/30*100) + "%";
+  text.innerText = timeLeft + "s left";
+}
+
+// Override showQuestion() to include timer
+const originalShowQuestion = showQuestion;
+showQuestion = function(){
+  originalShowQuestion();
+  startTimer();
+}
+</script>
+<!-- TIMER + PROGRESS BAR SNIPPET END -->
