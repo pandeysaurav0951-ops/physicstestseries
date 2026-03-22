@@ -281,22 +281,23 @@ function loadAdminTable(){
 
 // Fixed Admin Reset
 function adminReset(){
-  const pass=prompt("Enter Admin Password:");
-  if(pass!=="PhysicsAdmin123"){alert("Access Denied!"); return;}
+  const pass = prompt("Enter Admin Password:");
+  if(pass !== "PhysicsAdmin123"){ alert("Access Denied!"); return; }
 
-  const choice=prompt("Type 'all' to reset all results or chapter number (1,2,3):");
+  const choice = prompt("Type 'all' to reset all results or chapter number (1,2,3):");
   if(!choice) return;
 
   currentChapter = null; currentQ = 0; userAnswers = []; student = {name:"", email:""};
 
-  if(choice.toLowerCase()==='all'){
+  let results = JSON.parse(localStorage.getItem("results") || "[]");
+  let feedbacks = JSON.parse(localStorage.getItem("feedbacks") || "[]");
+
+  if(choice.toLowerCase() === 'all'){
     localStorage.removeItem("results");
     localStorage.removeItem("feedbacks");
     alert("All results and feedback cleared!");
   } else {
     const chapterKey = "Chapter " + choice;
-    let results = JSON.parse(localStorage.getItem("results") || "[]");
-    let feedbacks = JSON.parse(localStorage.getItem("feedbacks") || "[]");
     results = results.filter(r => r.chapter !== chapterKey);
     feedbacks = feedbacks.filter(f => f.chapter !== chapterKey);
     localStorage.setItem("results", JSON.stringify(results));
@@ -304,7 +305,10 @@ function adminReset(){
     alert(chapterKey + " results and feedback cleared!");
   }
 
-  loadAdminTable();
+  document.querySelector("#results-table tbody").innerHTML = "";
+  document.querySelector("#feedback-table tbody").innerHTML = "";
+  document.getElementById('admin-total-students').innerText = JSON.parse(localStorage.getItem("results") || "[]").length;
+
   showSlide('home');
 }
 
@@ -312,4 +316,4 @@ function adminReset(){
 showSlide('home');
 </script>
 </body>
-</html>
+ </html>
