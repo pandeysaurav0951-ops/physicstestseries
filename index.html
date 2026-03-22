@@ -79,9 +79,12 @@
 <!-- ADMIN DASHBOARD -->
 <div class="container" id="admin-section" style="display:none;">
   <h2>Admin Dashboard</h2>
+  <button class="btn" onclick="adminReset()">Reset Results</button>
   <p>Total Students Taken Tests: <span id="admin-total-students">0</span></p>
   <table id="results-table">
-    <thead><tr><th>Name</th><th>Email</th><th>Chapter</th><th>Score</th></tr></thead>
+    <thead>
+      <tr><th>Name</th><th>Email</th><th>Chapter</th><th>Score</th></tr>
+    </thead>
     <tbody></tbody>
   </table>
 </div>
@@ -93,22 +96,25 @@ let student={name:"",email:""};
 let currentChapter=null, currentQ=0, userAnswers=[];
 let timerInterval, timeLeft=30;
 
+// Chapters & questions
 const chapters={
   "Chapter 1":{desc:"Electric Charges & Fields",questions:[
-    {q:"What is 2 + 2?",options:["3","4","5","6"],answer:1},
-    {q:"Capital of India?",options:["Delhi","Mumbai","Kolkata","Chennai"],answer:0},
-    {q:"Red Planet?",options:["Earth","Venus","Mars","Jupiter"],answer:2}
+    {q:"Unit of electric charge?",options:["Coulomb","Newton","Joule","Watt"],answer:0},
+    {q:"Electron has what charge?",options:["Positive","Negative","Neutral","Depends"],answer:1},
+    {q:"Coulomb's law relates what?",options:["Charge & Force","Mass & Acceleration","Voltage & Current","Energy & Time"],answer:0}
   ]},
   "Chapter 2":{desc:"Electrostatic Potential",questions:[]},
   "Chapter 3":{desc:"Current Electricity",questions:[]}
 };
 
+// Show form
 function showForm(){
   document.getElementById('home-section').style.display="none";
   document.getElementById('form-section').style.display="block";
   initChapters();
 }
 
+// Initialize chapter buttons
 function initChapters(){
   const container=document.getElementById('chapter-container');
   container.innerHTML="";
@@ -125,12 +131,12 @@ function initChapters(){
   });
 }
 
+// Start chapter
 function startChapter(chapterName){
   const name=document.getElementById('studentName').value.trim();
   const email=document.getElementById('studentEmail').value.trim();
   if(name===""||email===""){alert("Enter name & email");return;}
   
-  // check duplicate attempt
   let results=JSON.parse(localStorage.getItem("results")||"[]");
   if(results.some(r=>r.email===email && r.chapter===chapterName)){
     alert("You already attempted this chapter!"); return;
@@ -144,6 +150,7 @@ function startChapter(chapterName){
   showQuestion();
 }
 
+// Question tracker buttons
 function initTracker(){
   const tracker=document.getElementById('question-tracker');
   tracker.innerHTML="";
@@ -156,6 +163,7 @@ function initTracker(){
   }
 }
 
+// Show question
 function showQuestion(){
   const container=document.getElementById('question-container');
   container.innerHTML="";
@@ -181,6 +189,7 @@ function showQuestion(){
   } else submitTest();
 }
 
+// Timer display
 function updateTimerDisplay(){
   const bar=document.getElementById('timer-bar');
   const text=document.getElementById('timer-text');
@@ -188,10 +197,10 @@ function updateTimerDisplay(){
   text.innerText=timeLeft+"s left";
 }
 
+// Select answer
 function selectAnswer(idx){
   const qArr=chapters[currentChapter].questions;
   userAnswers.push(idx);
-  // update tracker
   const btn=document.getElementById("q-btn-"+currentQ);
   if(idx===qArr[currentQ].answer) btn.style.background="green";
   else btn.style.background="red";
@@ -199,6 +208,7 @@ function selectAnswer(idx){
   showQuestion();
 }
 
+// Submit test
 function submitTest(){
   document.getElementById('test-section').style.display="none";
   const qArr=chapters[currentChapter].questions;
@@ -210,17 +220,19 @@ function submitTest(){
   document.getElementById('results-section').style.display="block";
   document.getElementById('student-info').innerText=`Name: ${student.name}, Email: ${student.email}, Chapter: ${currentChapter}`;
   document.getElementById('score').innerText=`Score: ${score}/${qArr.length}`;
-  document.getElementById('review').innerHTML=reviewHTML;
 
   saveResult(student.name, student.email, currentChapter, score);
+  document.getElementById('review').innerHTML=reviewHTML;
 }
 
+// Save result
 function saveResult(name,email,chapter,score){
   let results=JSON.parse(localStorage.getItem("results")||"[]");
   results.push({name,email,chapter,score});
   localStorage.setItem("results",JSON.stringify(results));
 }
 
+// Show admin dashboard
 function showAdmin(){
   const password=prompt("Enter Admin Password:");
   if(password==="PhysicsAdmin123"){
@@ -233,6 +245,7 @@ function showAdmin(){
   } else alert("Access Denied!");
 }
 
+// Load admin table
 function loadAdminTable(){
   const resultsTable=document.querySelector("#results-table tbody");
   resultsTable.innerHTML="";
@@ -243,6 +256,30 @@ function loadAdminTable(){
     row.innerHTML=`<td>${r.name}</td><td>${r.email}</td><td>${r.chapter}</td><td>${r.score}</td>`;
     resultsTable.appendChild(row);
   });
+}
+
+// Admin Reset
+function adminReset(){
+  const password = prompt("Enter Admin Password to Reset:");
+  if(password !== "PhysicsAdmin123"){ alert("Access Denied!"); return; }
+
+  const choice = prompt("Type 'all' to reset all results or chapter number to reset specific chapter (1,2,3):");
+  if(!choice) return;
+
+  let results = JSON.parse(localStorage.getItem("results")||"[]");
+  if(choice.toLowerCase() === 'all'){
+    localStorage.removeItem("results");
+    alert("All student results cleared!");
+  } else {
+    const chapterKey = "Chapter " + choice;
+    results = results.filter(r => r.chapter !== chapterKey);
+    localStorage.setItem("results", JSON.stringify(results));
+    alert(`Results for ${chapterKey} cleared!`);
+  }
+
+  if(document.getElementById('admin-section').style.display==="block"){
+    loadAdminTable();
+  }
 }
 </script>
 </body>
