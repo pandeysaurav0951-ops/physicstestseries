@@ -90,6 +90,7 @@
     <textarea id="feedback-text" placeholder="Write your feedback here..." rows="3"></textarea>
     <button class="btn" onclick="submitFeedback()">Submit Feedback</button>
     <p id="feedback-msg" style="color:lightgreen;font-weight:bold;"></p>
+    <button class="btn" onclick="showSlide('home')">Complete</button>
   </div>
 </div>
 
@@ -234,11 +235,18 @@ function submitFeedback(){
   const rating=document.getElementById('rating').value;
   const text=document.getElementById('feedback-text').value.trim();
   if(!rating){alert("Select rating"); return;}
-  
+
   let feedbacks=JSON.parse(localStorage.getItem("feedbacks")||"[]");
+
+  // check if feedback already submitted by this email for this chapter
+  if(feedbacks.some(f=>f.email===student.email && f.chapter===chapters[currentChapter].name)){
+    alert("You already submitted feedback for this chapter!");
+    return;
+  }
+
   feedbacks.push({name:student.name,email:student.email,chapter:chapters[currentChapter].name,rating,text});
   localStorage.setItem("feedbacks",JSON.stringify(feedbacks));
-  
+
   document.getElementById('feedback-msg').innerText="Thank you for your feedback!";
   document.getElementById('rating').value="";
   document.getElementById('feedback-text').value="";
@@ -280,14 +288,15 @@ function adminReset(){
   if(pass!=="PhysicsAdmin123"){alert("Access Denied!"); return;}
   const choice=prompt("Type 'all' to reset all results or chapter number (1,2,3):");
   if(!choice) return;
+
   let results=JSON.parse(localStorage.getItem("results")||"[]");
   let feedbacks=JSON.parse(localStorage.getItem("feedbacks")||"[]");
+
   if(choice.toLowerCase()==='all'){
     localStorage.removeItem("results");
     localStorage.removeItem("feedbacks");
     alert("All results and feedback cleared!");
-  }
-  else{
+  } else {
     const chapterKey="Chapter "+choice;
     results=results.filter(r=>r.chapter!==chapterKey);
     feedbacks=feedbacks.filter(f=>f.chapter!==chapterKey);
