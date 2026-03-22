@@ -1,7 +1,7 @@
  <!DOCTYPE html>
 <html>
 <head>
-  <title>Physics Test Dashboard with Admin</title>
+  <title>Physics Test Dashboard with Admin & Restrictions</title>
   <style>
     body {margin:0; font-family:'Segoe UI', Arial; background: linear-gradient(135deg, #0f172a, #1e293b); color:white;}
     .navbar {display:flex; justify-content:space-between; padding:15px 25px; background:#020617;}
@@ -31,7 +31,6 @@
 </head>
 <body>
 
-<!-- NAVBAR -->
 <div class="navbar">
   <div class="logo">Physics Test</div>
   <div class="menu">
@@ -40,20 +39,17 @@
   </div>
 </div>
 
-<!-- HERO -->
 <div class="hero">
   <h1>Welcome to Physics Test Series</h1>
   <p>Practice Chapter-wise Tests for Class 12</p>
 </div>
 
-<!-- STATS -->
 <div class="stats">
   <div class="box"><h2 id="total-chapters">0</h2><p>Chapters</p></div>
   <div class="box"><h2 id="total-questions">0</h2><p>Questions</p></div>
   <div class="box"><h2 id="total-students">0</h2><p>Students</p></div>
 </div>
 
-<!-- STUDENT FORM -->
 <div class="form-section" id="form-section">
   <h2>Enter Your Details</h2>
   <input type="text" id="studentName" placeholder="Enter your name" required>
@@ -62,12 +58,10 @@
   <div class="container" id="chapter-container"></div>
 </div>
 
-<!-- TEST SECTION -->
 <div class="test-section" id="test-section" style="display:none;">
   <div id="question-container"></div>
 </div>
 
-<!-- RESULTS -->
 <div class="results" id="results" style="display:none;">
   <h2>Test Results</h2>
   <p id="student-info"></p>
@@ -75,7 +69,6 @@
   <div id="review"></div>
 </div>
 
-<!-- ADMIN DASHBOARD -->
 <div class="admin-section" id="admin-section" style="display:none;">
   <h2>Admin Dashboard</h2>
   <p>Total Students Taken Tests: <span id="admin-total-students">0</span></p>
@@ -85,143 +78,148 @@
   </table>
 </div>
 
-<!-- FOOTER -->
 <div class="footer">© 2026 Physics Test Series | Made by You 😎</div>
 
 <script>
-  // ===== DATA =====
-  let student={name:"", email:""};
-  let currentChapter=null;
-  const chapters = {
-    "Chapter 1": {desc:"Electric Charges & Fields", questions:[
-      {q:"What is 2 + 2?", options:["3","4","5","6"], answer:1},
-      {q:"Capital of India?", options:["Delhi","Mumbai","Kolkata","Chennai"], answer:0},
-      {q:"Which planet is known as Red Planet?", options:["Earth","Venus","Mars","Jupiter"], answer:2}
-    ]},
-    "Chapter 2": {desc:"Electrostatic Potential", questions:[]},
-    "Chapter 3": {desc:"Current Electricity", questions:[]}
-  };
-  let currentQ=0,userAnswers=[];
+let student={name:"", email:""};
+let currentChapter=null;
+const chapters = {
+  "Chapter 1": {desc:"Electric Charges & Fields", questions:[
+    {q:"What is 2 + 2?", options:["3","4","5","6"], answer:1},
+    {q:"Capital of India?", options:["Delhi","Mumbai","Kolkata","Chennai"], answer:0},
+    {q:"Which planet is known as Red Planet?", options:["Earth","Venus","Mars","Jupiter"], answer:2}
+  ]},
+  "Chapter 2": {desc:"Electrostatic Potential", questions:[]},
+  "Chapter 3": {desc:"Current Electricity", questions:[]}
+};
+let currentQ=0,userAnswers=[];
 
-  // ===== INIT CHAPTER CARDS =====
-  const chapterContainer = document.getElementById('chapter-container');
-  Object.keys(chapters).forEach(ch=>{
-    const card=document.createElement('div');
-    card.className="card";
-    const chData=chapters[ch];
-    card.innerHTML=`<h3>${ch}</h3><p>${chData.desc}</p>`;
-    const btn=document.createElement('button');
-    btn.className="btn";
-    if(chData.questions.length>0){
-      btn.innerText="Start Test";
-      btn.onclick=()=>startChapter(ch);
-    } else {
-      btn.innerText="Coming Soon";
-      btn.disabled=true;
-      btn.title="Coming Soon";
-    }
-    card.appendChild(btn);
-    chapterContainer.appendChild(card);
+// Init chapter cards
+const chapterContainer = document.getElementById('chapter-container');
+Object.keys(chapters).forEach(ch=>{
+  const card=document.createElement('div');
+  card.className="card";
+  const chData=chapters[ch];
+  card.innerHTML=`<h3>${ch}</h3><p>${chData.desc}</p>`;
+  const btn=document.createElement('button');
+  btn.className="btn";
+  if(chData.questions.length>0){
+    btn.innerText="Start Test";
+    btn.onclick=()=>startChapter(ch);
+  } else {
+    btn.innerText="Coming Soon";
+    btn.disabled=true;
+    btn.title="Coming Soon";
+  }
+  card.appendChild(btn);
+  chapterContainer.appendChild(card);
+});
+
+// Update stats
+document.getElementById('total-chapters').innerText=Object.keys(chapters).length;
+let totalQ=0; Object.values(chapters).forEach(ch=> totalQ+=ch.questions.length);
+document.getElementById('total-questions').innerText=totalQ;
+document.getElementById('total-students').innerText=JSON.parse(localStorage.getItem("results")||"[]").length;
+
+// Start Chapter
+function startChapter(chapterName){
+  const name=document.getElementById('studentName').value.trim();
+  const email=document.getElementById('studentEmail').value.trim();
+  if(name===""||email===""){ alert("Please enter your name and email"); return; }
+
+  // Check duplicate attempt
+  let results=JSON.parse(localStorage.getItem("results")||"[]");
+  let attempted = results.some(r => r.email === email && r.chapter === chapterName);
+  if(attempted){ alert("You have already attempted this chapter!"); return; }
+
+  student.name=name;
+  student.email=email;
+  currentChapter=chapterName;
+  currentQ=0;
+  userAnswers=[];
+  document.getElementById('form-section').style.display="none";
+  document.getElementById('test-section').style.display="block";
+  showQuestion();
+}
+
+// Show Question with letters
+function showQuestion(){
+  const container=document.getElementById('question-container');
+  container.innerHTML="";
+  const qArr=chapters[currentChapter].questions;
+  if(currentQ<qArr.length){
+    const qObj=qArr[currentQ];
+    const qDiv=document.createElement('div');
+    qDiv.className="test-question";
+    qDiv.innerHTML=`<strong>Q${currentQ+1}: ${qObj.q}</strong>`;
+    container.appendChild(qDiv);
+
+    const letters=["A","B","C","D"];
+    qObj.options.forEach((opt, idx)=>{
+      const btn=document.createElement('button');
+      btn.className="answer-btn";
+      btn.innerText=`${letters[idx]}. ${opt}`;
+      btn.onclick=()=>selectAnswer(idx);
+      container.appendChild(btn);
+    });
+  } else submitTest();
+}
+
+function selectAnswer(idx){
+  userAnswers.push(idx);
+  currentQ++;
+  showQuestion();
+}
+
+// Submit Test
+function submitTest(){
+  document.getElementById('test-section').style.display="none";
+  document.getElementById('results').style.display="block";
+
+  const qArr=chapters[currentChapter].questions;
+  let score=0, reviewHTML="<h3>Review:</h3>";
+  qArr.forEach((q,i)=>{
+    if(userAnswers[i]===q.answer) score++;
+    reviewHTML+=`<p>Q${i+1}: Your answer: ${q.options[userAnswers[i]]||"No Answer"} | Correct: ${q.options[q.answer]} ${userAnswers[i]===q.answer?'<span class="correct">✔</span>':'<span class="wrong">✖</span>'}</p>`;
   });
+  document.getElementById('student-info').innerText=`Name: ${student.name}, Email: ${student.email}, Chapter: ${currentChapter}`;
+  document.getElementById('score').innerText=`Score: ${score} / ${qArr.length}`;
+  document.getElementById('review').innerHTML=reviewHTML;
 
-  // ===== UPDATE STATS =====
-  document.getElementById('total-chapters').innerText=Object.keys(chapters).length;
-  let totalQ=0;
-  Object.values(chapters).forEach(ch=> totalQ+=ch.questions.length);
-  document.getElementById('total-questions').innerText=totalQ;
-  document.getElementById('total-students').innerText=JSON.parse(localStorage.getItem("results")||"[]").length;
+  saveResult(student.name, student.email, currentChapter, score);
+}
 
-  // ===== FUNCTIONS =====
-  function startChapter(chapterName){
-    const name=document.getElementById('studentName').value.trim();
-    const email=document.getElementById('studentEmail').value.trim();
-    if(name===""||email===""){ alert("Please enter your name and email"); return; }
-    student.name=name;
-    student.email=email;
-    currentChapter=chapterName;
-    currentQ=0;
-    userAnswers=[];
+// LocalStorage save
+function saveResult(name,email,chapter,score){
+  let results=JSON.parse(localStorage.getItem("results")||"[]");
+  results.push({name,email,chapter,score});
+  localStorage.setItem("results",JSON.stringify(results));
+  document.getElementById('total-students').innerText=results.length;
+}
+
+// Admin (password protected)
+function showAdmin(){
+  const password = prompt("Enter Admin Password:");
+  if(password === "PhysicsAdmin123"){ 
     document.getElementById('form-section').style.display="none";
-    document.getElementById('test-section').style.display="block";
-    showQuestion();
-  }
-
-  function showQuestion(){
-    const container=document.getElementById('question-container');
-    container.innerHTML="";
-    const qArr=chapters[currentChapter].questions;
-    if(currentQ<qArr.length){
-      const qObj=qArr[currentQ];
-      const qDiv=document.createElement('div');
-      qDiv.className="test-question";
-      qDiv.innerHTML=`<strong>Q${currentQ+1}: ${qObj.q}</strong>`;
-      container.appendChild(qDiv);
-      qObj.options.forEach((opt, idx)=>{
-        const btn=document.createElement('button');
-        btn.className="answer-btn";
-        btn.innerText=opt;
-        btn.onclick=()=>selectAnswer(idx);
-        container.appendChild(btn);
-      });
-    } else submitTest();
-  }
-
-  function selectAnswer(idx){
-    userAnswers.push(idx);
-    currentQ++;
-    showQuestion();
-  }
-
-  function submitTest(){
     document.getElementById('test-section').style.display="none";
-    document.getElementById('results').style.display="block";
+    document.getElementById('results').style.display="none";
+    document.getElementById('admin-section').style.display="block";
+    loadAdminTable();
+  } else { alert("Access Denied! Wrong Password."); }
+}
 
-    const qArr=chapters[currentChapter].questions;
-    let score=0, reviewHTML="<h3>Review:</h3>";
-    qArr.forEach((q,i)=>{
-      if(userAnswers[i]===q.answer) score++;
-      reviewHTML+=`<p>Q${i+1}: Your answer: ${q.options[userAnswers[i]]||"No Answer"} | Correct: ${q.options[q.answer]} ${userAnswers[i]===q.answer?'<span class="correct">✔</span>':'<span class="wrong">✖</span>'}</p>`;
-    });
-    document.getElementById('student-info').innerText=`Name: ${student.name}, Email: ${student.email}, Chapter: ${currentChapter}`;
-    document.getElementById('score').innerText=`Score: ${score} / ${qArr.length}`;
-    document.getElementById('review').innerHTML=reviewHTML;
-
-    saveResult(student.name, student.email, currentChapter, score);
-  }
-
-  // ===== LOCALSTORAGE =====
-  function saveResult(name,email,chapter,score){
-    let results=JSON.parse(localStorage.getItem("results")||"[]");
-    results.push({name,email,chapter,score});
-    localStorage.setItem("results",JSON.stringify(results));
-    document.getElementById('total-students').innerText=results.length;
-  }
-
-  // ===== PASSWORD-PROTECTED ADMIN =====
-  function showAdmin(){
-    const password = prompt("Enter Admin Password:");
-    if(password === "PhysicsAdmin123"){ // Change password here
-      document.getElementById('form-section').style.display="none";
-      document.getElementById('test-section').style.display="none";
-      document.getElementById('results').style.display="none";
-      document.getElementById('admin-section').style.display="block";
-      loadAdminTable();
-    } else {
-      alert("Access Denied! Wrong Password.");
-    }
-  }
-
-  function loadAdminTable(){
-    const resultsTable=document.querySelector("#results-table tbody");
-    resultsTable.innerHTML="";
-    const results=JSON.parse(localStorage.getItem("results")||"[]");
-    document.getElementById('admin-total-students').innerText=results.length;
-    results.forEach(r=>{
-      const row=document.createElement('tr');
-      row.innerHTML=`<td>${r.name}</td><td>${r.email}</td><td>${r.chapter}</td><td>${r.score}</td>`;
-      resultsTable.appendChild(row);
-    });
-  }
+function loadAdminTable(){
+  const resultsTable=document.querySelector("#results-table tbody");
+  resultsTable.innerHTML="";
+  const results=JSON.parse(localStorage.getItem("results")||"[]");
+  document.getElementById('admin-total-students').innerText=results.length;
+  results.forEach(r=>{
+    const row=document.createElement('tr');
+    row.innerHTML=`<td>${r.name}</td><td>${r.email}</td><td>${r.chapter}</td><td>${r.score}</td>`;
+    resultsTable.appendChild(row);
+  });
+}
 </script>
 
 </body>
