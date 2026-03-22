@@ -1,94 +1,87 @@
  <!DOCTYPE html>
 <html>
 <head>
-  <title>Chapter 1 Test - Part 1</title>
+  <title>Chapter 1 - Physics Test</title>
   <style>
     body{margin:0;font-family:'Segoe UI',Arial;background:#0f172a;color:white;}
-    .container{max-width:900px;margin:20px auto;padding:20px;border-radius:10px;background:#1e293b;}
-    .btn{padding:10px 20px;background:#38bdf8;border:none;border-radius:8px;cursor:pointer;font-weight:bold;margin-top:10px;}
-    .btn:hover{background:#0ea5e9;}
+    .container{max-width:800px;margin:20px auto;padding:20px;border-radius:10px;background:#1e293b;}
     .answer-btn{display:block;margin:10px 0;padding:10px;width:100%;background:#38bdf8;border:none;border-radius:5px;cursor:pointer;}
     .answer-btn:hover{background:#0ea5e9;}
-    .correct{color:green;font-weight:bold;}
-    .wrong{color:red;font-weight:bold;}
-    #timer-bar-container{width:100%;background:#334155;border-radius:5px;margin:10px 0;height:20px;}
-    #timer-bar{width:100%;height:100%;background:#38bdf8;border-radius:5px;transition:width 1s linear;}
-    #timer-text{text-align:right;margin-top:-20px;font-size:14px;}
-    .tracker button{width:40px;height:40px;margin:5px;border:none;border-radius:5px;font-weight:bold;cursor:pointer;}
+    .correct{background:green;color:white;}
+    .wrong{background:red;color:white;}
+    #tracker button{width:40px;height:40px;margin:5px;border:none;border-radius:5px;font-weight:bold;cursor:pointer;}
   </style>
 </head>
 <body>
+
 <div class="container">
-  <h2>Chapter 1 - Part 1: Electric Charges & Fields</h2>
-  <div id="timer-bar-container"><div id="timer-bar"></div></div>
-  <div id="timer-text"></div>
+  <h2>Chapter 1 - Electric Charges & Fields</h2>
   <div id="question-container"></div>
-  <div class="tracker" id="question-tracker"></div>
-  <div id="results-section" style="display:none;"></div>
+  <div id="tracker"></div>
 </div>
 
 <script>
-let student=JSON.parse(localStorage.getItem("currentStudent")||"{}");
-let questions=[
-  {q:"Unit of electric charge?", options:["Coulomb","Newton","Joule","Watt"], answer:0},
-  {q:"Electron has what charge?", options:["Positive","Negative","Neutral","Depends"], answer:1},
-  {q:"Coulomb's law relates what?", options:["Charge & Force","Mass & Acceleration","Voltage & Current","Energy & Time"], answer:0}
+let currentQ=0;
+let userAnswers=[];
+const questions=[
+  {q:"What is the SI unit of electric charge?", options:["Coulomb","Newton","Joule","Watt"], answer:0},
+  {q:"Why do like charges repel and unlike charges attract?", options:["Due to gravity","Magnetic forces","Electrostatic forces","Friction"], answer:2},
+  {q:"Define Coulomb's law.", options:["Force proportional to mass","Force proportional to charge product / distance^2","Voltage difference","Resistance"], answer:1},
+  {q:"Characteristics of a conductor?", options:["No free electrons","Allows flow of charge","Stores charge only","Insulates"], answer:1},
+  {q:"Principle of superposition of electric forces?", options:["For magnetic forces","Sum of individual forces","Subtract forces","Depends on charge sign"], answer:1},
+  {q:"Two charges +3 µC and -6 µC 5cm apart, force?", options:["32.4 N","64.8 N","9 N","12 N"], answer:1},
+  {q:"Force doubles when distance halves?", options:["Yes","No","Depends","Sometimes"], answer:0},
+  {q:"Charge +2C at origin, force on +4C at x=0.5m?", options:["16 N","32 N","64 N","8 N"], answer:1},
+  {q:"Coulomb's law applicable to?", options:["Point charges","All bodies","Conductors only","Insulators only"], answer:0},
+  {q:"Definition of electric field intensity?", options:["Force per unit mass","Force per unit charge","Voltage per meter","Charge per meter"], answer:1},
+  {q:"Electric field due to point charge?", options:["E=kq/r^2","E=qr","E=k/r^2","E=qr^2"], answer:0},
+  {q:"A +5 µC charge produces 2000 N/C, distance?", options:["0.15 m","0.5 m","0.25 m","1 m"], answer:2},
+  {q:"Direction of field due to negative charge?", options:["Away from charge","Towards charge","Perpendicular","Random"], answer:1},
+  {q:"Properties of electric field lines?", options:["Start on positive, end negative","Never intersect","Both","None"], answer:2},
+  {q:"Pattern of field lines for unlike charges?", options:["Repel each other","Start on +, end on -","Random","Circle"], answer:1},
+  {q:"Why lines never intersect?", options:["Force unique at a point","No reason","Random","Depends on charge"], answer:0},
+  {q:"Define electric dipole and dipole moment", options:["Two charges of equal magnitude opposite sign, p=qd","Single charge only","Two positive charges","Neutral body"], answer:0},
+  {q:"Electric field on axial line of dipole?", options:["E=kq/r^2","E=1/4πε0*2p/r^3","Zero","Depends on medium"], answer:1},
+  {q:"Field axial vs equatorial?", options:["Axial stronger","Equatorial stronger","Same","Zero both"], answer:0},
+  {q:"Torque on dipole in uniform field?", options:["τ=p×E","τ=qE","τ=0","τ=kq/r^2"], answer:0},
+  {q:"Electric field due to uniform rod?", options:["Use superposition","Use Coulomb law directly","Cannot calculate","Depends on charge"], answer:0},
+  {q:"Field inside spherical shell?", options:["Zero","Non-zero","Infinite","Depends"], answer:0},
+  {q:"Field on surface of charged sphere?", options:["E=kQ/R^2","E=0","E=kQ/R","Depends"], answer:0},
+  {q:"Van de Graaff generator produces?", options:["Static charges","Magnetic field","Current","Voltage only"], answer:0},
+  {q:"Electric field used in CRO?", options:["Deflect electron beam","Measure temperature","Measure current","Magnetic alignment"], answer:0}
 ];
-let currentQ=0, userAnswers=[], timerInterval, timeLeft=30;
 
-function initTracker(){
-  const tracker=document.getElementById('question-tracker');
-  tracker.innerHTML="";
-  questions.forEach((q,i)=>{
-    const btn=document.createElement('button'); btn.innerText=i+1; btn.id="q-btn-"+i; tracker.appendChild(btn);
+// Tracker buttons
+const trackerDiv=document.getElementById('tracker');
+questions.forEach((q,i)=>{
+  const btn=document.createElement('button');
+  btn.id="t-"+i; btn.innerText=i+1; trackerDiv.appendChild(btn);
+});
+
+// Show question
+function showQuestion(){
+  if(currentQ>=questions.length){alert("Test Complete!"); return;}
+  const q=questions[currentQ];
+  const container=document.getElementById('question-container');
+  container.innerHTML=`<strong>Q${currentQ+1}: ${q.q}</strong>`;
+  ["A","B","C","D"].forEach((l,i)=>{
+    const btn=document.createElement('button');
+    btn.className="answer-btn"; btn.innerText=`${l}. ${q.options[i]}`;
+    btn.onclick=()=>selectAnswer(i);
+    container.appendChild(btn);
   });
 }
 
-function showQuestion(){
-  const container=document.getElementById('question-container');
-  container.innerHTML=""; clearInterval(timerInterval); timeLeft=30; updateTimer();
-  if(currentQ<questions.length){
-    container.innerHTML=`<strong>Q${currentQ+1}: ${questions[currentQ].q}</strong>`;
-    ["A","B","C","D"].forEach((letter,idx)=>{
-      const btn=document.createElement('button'); btn.className="answer-btn"; btn.innerText=`${letter}. ${questions[currentQ].options[idx]}`;
-      btn.onclick=()=>selectAnswer(idx); container.appendChild(btn);
-    });
-    timerInterval=setInterval(()=>{
-      timeLeft--; updateTimer();
-      if(timeLeft<=0){clearInterval(timerInterval); selectAnswer(null);}
-    },1000);
-  } else submitTest();
-}
-
-function updateTimer(){
-  document.getElementById('timer-bar').style.width=(timeLeft/30*100)+"%";
-  document.getElementById('timer-text').innerText=timeLeft+"s left";
-}
-
+// Select answer
 function selectAnswer(idx){
   userAnswers.push(idx);
-  const btn=document.getElementById("q-btn-"+currentQ);
+  const btn=document.getElementById("t-"+currentQ);
   if(idx===questions[currentQ].answer) btn.style.background="green"; else btn.style.background="red";
   currentQ++; showQuestion();
 }
 
-function submitTest(){
-  clearInterval(timerInterval);
-  document.getElementById('question-container').style.display="none";
-  document.getElementById('question-tracker').style.display="none";
-  const resultsDiv=document.getElementById('results-section'); resultsDiv.style.display="block";
-  let score=0, reviewHTML="<h3>Review:</h3>";
-  questions.forEach((q,i)=>{
-    if(userAnswers[i]===q.answer) score++;
-    reviewHTML+=`<p>Q${i+1}: Your: ${q.options[userAnswers[i]]||"No Answer"} | Correct: ${q.options[q.answer]} ${userAnswers[i]===q.answer?'<span class="correct">✔</span>':'<span class="wrong">✖</span>'}</p>`;
-  });
-  resultsDiv.innerHTML=`<p>Name: ${student.name}, Email: ${student.email}</p><p>Score: ${score}/${questions.length}</p>${reviewHTML}`;
-  let allResults=JSON.parse(localStorage.getItem("results")||"[]");
-  allResults.push({name:student.name,email:student.email,chapter:"Chapter 1 - Part 1",score});
-  localStorage.setItem("results",JSON.stringify(allResults));
-}
-
-initTracker(); showQuestion();
+// Start first question automatically
+showQuestion();
 </script>
 </body>
 </html>
