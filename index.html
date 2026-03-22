@@ -1,113 +1,181 @@
  <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Simple Test Series</title>
-<style>
-  body { font-family: Arial, sans-serif; background:#f5f5f5; margin:0; padding:0; }
-  header { background:#4CAF50; color:white; padding:20px; text-align:center; }
-  nav a { color:white; margin:0 10px; text-decoration:none; font-weight:bold; }
-  section { max-width:800px; margin:30px auto; background:white; padding:20px; border-radius:8px; }
-  button { padding:10px 20px; margin-top:15px; background:#4CAF50; color:white; border:none; border-radius:5px; cursor:pointer; }
-  .question { margin:20px 0; }
-  .answer { display:block; margin:8px 0; padding:10px; background:#81C784; color:white; border:none; border-radius:5px; cursor:pointer; width:100%; }
-  .correct { color:green; font-weight:bold; }
-  .wrong { color:red; font-weight:bold; }
-  footer { text-align:center; padding:20px; background:#333; color:white; margin-top:30px; }
-</style>
+  <title>Physics Test Dashboard</title>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Arial;
+      background: linear-gradient(135deg, #0f172a, #1e293b);
+      color: white;
+    }
+
+    /* NAVBAR */
+    .navbar {
+      display: flex;
+      justify-content: space-between;
+      padding: 15px 25px;
+      background: #020617;
+    }
+
+    .logo {
+      font-size: 20px;
+      font-weight: bold;
+      color: #38bdf8;
+    }
+
+    .menu a {
+      color: white;
+      margin-left: 20px;
+      text-decoration: none;
+    }
+
+    .menu a:hover {
+      color: #38bdf8;
+    }
+
+    /* HERO */
+    .hero {
+      text-align: center;
+      padding: 40px 20px;
+      animation: fadeIn 1s ease;
+    }
+
+    .hero h1 {
+      color: #38bdf8;
+    }
+
+    /* STATS */
+    .stats {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      padding: 20px;
+    }
+
+    .box {
+      background: #1e293b;
+      padding: 20px;
+      border-radius: 10px;
+      width: 120px;
+      text-align: center;
+    }
+
+    /* CARDS */
+    .container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      padding: 20px;
+    }
+
+    .card {
+      background: #1e293b;
+      padding: 20px;
+      border-radius: 15px;
+      text-align: center;
+      transition: 0.3s;
+    }
+
+    .card:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 0 15px #38bdf8;
+    }
+
+    .btn {
+      margin-top: 10px;
+      padding: 10px 20px;
+      background: #38bdf8;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .btn:hover {
+      background: #0ea5e9;
+    }
+
+    /* FOOTER */
+    .footer {
+      text-align: center;
+      padding: 15px;
+      background: #020617;
+      margin-top: 20px;
+      font-size: 14px;
+    }
+
+    @keyframes fadeIn {
+      from {opacity: 0;}
+      to {opacity: 1;}
+    }
+  </style>
 </head>
+
 <body>
 
-<header>
-  <h1>Simple Test Series</h1>
-  <nav>
-    <a href="#home">Home</a>
-    <a href="#tests">Tests</a>
-    <a href="#contact">Contact</a>
-  </nav>
-</header>
+<!-- NAVBAR -->
+<div class="navbar">
+  <div class="logo">Physics Test</div>
+  <div class="menu">
+    <a href="#">Home</a>
+    <a href="#">Chapters</a>
+    <a href="#">Result</a>
+  </div>
+</div>
 
-<section id="home">
-  <h2>Welcome to Test Series</h2>
-  <p>Attempt tests and get instant results!</p>
-  <button onclick="startTest()">Start Test</button>
-</section>
+<!-- HERO -->
+<div class="hero">
+  <h1>Welcome to Physics Test Series</h1>
+  <p>Practice Chapter-wise Tests for Class 12</p>
+</div>
 
-<section id="tests" style="display:none;">
-  <div id="question-container"></div>
-</section>
+<!-- STATS -->
+<div class="stats">
+  <div class="box">
+    <h2>3</h2>
+    <p>Chapters</p>
+  </div>
+  <div class="box">
+    <h2>20+</h2>
+    <p>Questions</p>
+  </div>
+  <div class="box">
+    <h2>300s</h2>
+    <p>Time/Test</p>
+  </div>
+</div>
 
-<section id="results" style="display:none;">
-  <h2>Test Results</h2>
-  <p id="score"></p>
-  <div id="review"></div>
-</section>
+<!-- CHAPTER CARDS -->
+<div class="container">
 
-<footer>
-  &copy; 2026 Simple Test Series | Contact: info@testseries.com
-</footer>
+  <div class="card">
+    <h3>Chapter 1</h3>
+    <p>Electric Charges & Fields</p>
+    <a href="chapter1.html">
+      <button class="btn">Start Test</button>
+    </a>
+  </div>
 
-<script>
-  const questions = [
-    { q: "What is 2 + 2?", options:["3","4","5","6"], answer:1 },
-    { q: "Capital of India?", options:["Delhi","Mumbai","Kolkata","Chennai"], answer:0 },
-    { q: "Which planet is known as Red Planet?", options:["Earth","Venus","Mars","Jupiter"], answer:2 }
-  ];
+  <div class="card">
+    <h3>Chapter 2</h3>
+    <p>Electrostatic Potential</p>
+    <button class="btn">Coming Soon</button>
+  </div>
 
-  let currentQ = 0;
-  let userAnswers = [];
+  <div class="card">
+    <h3>Chapter 3</h3>
+    <p>Current Electricity</p>
+    <button class="btn">Coming Soon</button>
+  </div>
 
-  function startTest(){
-    document.getElementById('home').style.display = 'none';
-    document.getElementById('tests').style.display = 'block';
-    showQuestion();
-  }
+</div>
 
-  function showQuestion(){
-    const container = document.getElementById('question-container');
-    container.innerHTML = "";
-    if(currentQ < questions.length){
-      const qObj = questions[currentQ];
-      const qEl = document.createElement('div');
-      qEl.classList.add('question');
-      qEl.innerHTML = `<strong>Q${currentQ+1}: ${qObj.q}</strong>`;
-      container.appendChild(qEl);
-
-      qObj.options.forEach((opt, idx)=>{
-        const btn = document.createElement('button');
-        btn.innerText = opt;
-        btn.classList.add('answer');
-        btn.onclick = ()=> selectAnswer(idx);
-        container.appendChild(btn);
-      });
-    } else {
-      submitTest();
-    }
-  }
-
-  function selectAnswer(idx){
-    userAnswers.push(idx);
-    currentQ++;
-    showQuestion(); // Auto next question
-  }
-
-  function submitTest(){
-    document.getElementById('tests').style.display = 'none';
-    document.getElementById('results').style.display = 'block';
-
-    let score = 0;
-    let reviewHTML = "<h3>Review:</h3>";
-    questions.forEach((q,i)=>{
-      if(userAnswers[i] === q.answer) score++;
-      reviewHTML += `<p>Q${i+1}: Your answer: ${q.options[userAnswers[i]] || "No Answer"} | Correct: ${q.options[q.answer]} 
-      ${userAnswers[i] === q.answer ? '<span class="correct">✔</span>' : '<span class="wrong">✖</span>'}</p>`;
-    });
-
-    document.getElementById('score').innerText = `Your Score: ${score} / ${questions.length}`;
-    document.getElementById('review').innerHTML = reviewHTML;
-  }
-</script>
+<!-- FOOTER -->
+<div class="footer">
+  © 2026 Physics Test Series | Made by You 😎
+</div>
 
 </body>
 </html>
