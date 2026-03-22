@@ -223,11 +223,12 @@ function submitTest(){
   });
   document.getElementById('student-info').innerText=`Name: ${student.name}, Email: ${student.email}, Chapter: ${chapters[currentChapter].name}`;
   document.getElementById('score').innerText=`Score: ${score}/${qArr.length}`;
-  document.getElementById('review').innerHTML=reviewHTML;
 
   let allResults=JSON.parse(localStorage.getItem("results")||"[]");
   allResults.push({name:student.name,email:student.email,chapter:chapters[currentChapter].name,score});
   localStorage.setItem("results",JSON.stringify(allResults));
+
+  document.getElementById('review').innerHTML=reviewHTML;
 }
 
 // Feedback
@@ -238,10 +239,8 @@ function submitFeedback(){
 
   let feedbacks=JSON.parse(localStorage.getItem("feedbacks")||"[]");
 
-  // check if feedback already submitted by this email for this chapter
   if(feedbacks.some(f=>f.email===student.email && f.chapter===chapters[currentChapter].name)){
-    alert("You already submitted feedback for this chapter!");
-    return;
+    alert("You already submitted feedback for this chapter!"); return;
   }
 
   feedbacks.push({name:student.name,email:student.email,chapter:chapters[currentChapter].name,rating,text});
@@ -255,13 +254,11 @@ function submitFeedback(){
 // Admin
 function showAdmin(){
   const pass=prompt("Enter Admin Password:");
-  if(pass==="PhysicsAdmin123"){
-    showSlide('admin'); loadAdminTable();
-  } else alert("Access Denied!");
+  if(pass==="PhysicsAdmin123"){ showSlide('admin'); loadAdminTable(); }
+  else alert("Access Denied!");
 }
 
 function loadAdminTable(){
-  // results
   const tbody=document.querySelector("#results-table tbody");
   tbody.innerHTML="";
   const results=JSON.parse(localStorage.getItem("results")||"[]");
@@ -272,7 +269,6 @@ function loadAdminTable(){
     tbody.appendChild(row);
   });
 
-  // feedback
   const fbTbody=document.querySelector("#feedback-table tbody");
   fbTbody.innerHTML="";
   const feedbacks=JSON.parse(localStorage.getItem("feedbacks")||"[]");
@@ -283,31 +279,36 @@ function loadAdminTable(){
   });
 }
 
+// Fixed Admin Reset
 function adminReset(){
   const pass=prompt("Enter Admin Password:");
   if(pass!=="PhysicsAdmin123"){alert("Access Denied!"); return;}
+
   const choice=prompt("Type 'all' to reset all results or chapter number (1,2,3):");
   if(!choice) return;
 
-  let results=JSON.parse(localStorage.getItem("results")||"[]");
-  let feedbacks=JSON.parse(localStorage.getItem("feedbacks")||"[]");
+  currentChapter = null; currentQ = 0; userAnswers = []; student = {name:"", email:""};
 
   if(choice.toLowerCase()==='all'){
     localStorage.removeItem("results");
     localStorage.removeItem("feedbacks");
     alert("All results and feedback cleared!");
   } else {
-    const chapterKey="Chapter "+choice;
-    results=results.filter(r=>r.chapter!==chapterKey);
-    feedbacks=feedbacks.filter(f=>f.chapter!==chapterKey);
-    localStorage.setItem("results",JSON.stringify(results));
-    localStorage.setItem("feedbacks",JSON.stringify(feedbacks));
-    alert(chapterKey+" results and feedback cleared!");
+    const chapterKey = "Chapter " + choice;
+    let results = JSON.parse(localStorage.getItem("results") || "[]");
+    let feedbacks = JSON.parse(localStorage.getItem("feedbacks") || "[]");
+    results = results.filter(r => r.chapter !== chapterKey);
+    feedbacks = feedbacks.filter(f => f.chapter !== chapterKey);
+    localStorage.setItem("results", JSON.stringify(results));
+    localStorage.setItem("feedbacks", JSON.stringify(feedbacks));
+    alert(chapterKey + " results and feedback cleared!");
   }
+
   loadAdminTable();
+  showSlide('home');
 }
 
-// Show home slide on page load
+// Load home slide on page load
 showSlide('home');
 </script>
 </body>
